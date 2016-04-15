@@ -1,0 +1,6 @@
+Document Analysis 1
+
+1. 
+The meta data seems to be reviews of different movies. 
+The data contains the title of the movie in form of an id, the name of the reviewer, a score and a review summary as well as text. 
+Users have the possibility to rate how helpful the review was to them.
