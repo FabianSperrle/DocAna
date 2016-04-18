@@ -1,9 +1,9 @@
 package reader;
 
 public class Product {
-	private int productID;
+	private String productID;
 	
-	public Product(int productID) {
+	public Product(String productID) {
 		this.productID = productID;
 	}
 }

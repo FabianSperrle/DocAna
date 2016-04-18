@@ -20,6 +20,8 @@ public class Review {
 		this.summary = summary;
 		this.text = text;
 	}
+	
+	public Review () {}
 
 	public Product getProduct() {
 		return product;
