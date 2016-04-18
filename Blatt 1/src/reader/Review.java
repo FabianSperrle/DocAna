@@ -1,16 +1,17 @@
 package reader;
 
+import java.util.Date;
+
 public class Review {
-	//andere tollere Daten typen, vllt auch extra klasse fuer produkte?
 	private Product product;
 	private User user;
 	private String helpfulness;
-	private String score;
-	private String time;
+	private double score;
+	private Date time;
 	private String summary;
 	private String text;
 	
-	public Review (Product product, User user, String helpfulness, String score, String time, 
+	public Review (Product product, User user, String helpfulness, int score, Date time, 
 			String summary, String text) {
 		this.product = product;
 		this.user = user;
@@ -47,19 +48,19 @@ public class Review {
 		this.helpfulness = helpfulness;
 	}
 
-	public String getScore() {
+	public double getScore() {
 		return score;
 	}
 
-	public void setScore(String score) {
+	public void setScore(double score) {
 		this.score = score;
 	}
 
-	public String getTime() {
+	public Date getTime() {
 		return time;
 	}
 
-	public void setTime(String time) {
+	public void setTime(Date time) {
 		this.time = time;
 	}
 
