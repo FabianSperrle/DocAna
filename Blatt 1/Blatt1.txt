@@ -1,6 +1,9 @@
 Document Analysis 1
+18.4.2016
+Fabian Sperrle, Rebecca Kehlbeck
 
 1. 
-The meta data seems to be reviews of different movies. 
-The data contains the title of the movie in form of an id, the name of the reviewer, a score and a review summary as well as text. 
-Users have the possibility to rate how helpful the review was to them.
+The data contains reviews of different movies.  The data contains the title of the movie in form of a productId, the name of the reviewer, a score, a time-stamp 
+and a review summary, as well as a review text. Users have the possibility to rate how helpful the review was to them. It is possible to count how often each movie is reviewed, 
+and what person writes the most reviews. Additionally we could perform time analysis and see whether there is a month in which more reviews are published and whether the genres 
+viewed change throughout the year
