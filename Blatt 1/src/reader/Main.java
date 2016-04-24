@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 import tokenizer.MissingInputException;
@@ -33,29 +34,20 @@ public class Main {
 				text3.append(rtemp.getText());
 			}
 		}
-		//Files.write(Paths.get("data/text1.txt"), results);
-		Review r = reviews.get(1);
+		Review r = reviews.get(2);
 		System.out.println(r.getText());
 		Tokenizer tokenizer = new Tokenizer(r.getText());
 		try {
 			String[] result = tokenizer.tokenize();
-
-//			for (String str : result) {
-//				System.out.println(str);
-//			}
+			Files.write(Paths.get(String.format("data/%s.txt",r.getProduct().getProductID())), Arrays.asList(result));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
-		
-		
 		SplitSentences sentence = new SplitSentences(r.getText());
 		
 		try {
 			String[] result = sentence.tokenize();
-//			for (String str : result) {
-//				System.out.println(str);
-//			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
