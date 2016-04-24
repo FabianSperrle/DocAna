@@ -1,8 +1,12 @@
 package tokenizer;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StreamTokenizer;
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +48,7 @@ public class Tokenizer {
 		}
 
 		results = results.stream().map(token -> removeTrailingPeriod(token)).collect(Collectors.toList());
+		Files.write(Paths.get("data/text1.txt"), results);
 		return results.toArray(new String[0]);
 	}	
 }
