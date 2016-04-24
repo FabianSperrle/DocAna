@@ -6,6 +6,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class Tokenizer {
@@ -44,6 +45,5 @@ public class Tokenizer {
 
 		results = results.stream().map(token -> removeTrailingPeriod(token)).collect(Collectors.toList());
 		return results.toArray(new String[0]);
-	}
-	
+	}	
 }

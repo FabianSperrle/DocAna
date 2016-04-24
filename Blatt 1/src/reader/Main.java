@@ -4,6 +4,7 @@ import java.util.List;
 
 import tokenizer.MissingInputException;
 import tokenizer.Tokenizer;
+import tokenizer.SplitSentences;
 
 public class Main {
 
@@ -19,12 +20,26 @@ public class Main {
 		Tokenizer tokenizer = new Tokenizer(r.getText());
 		try {
 			String[] result = tokenizer.tokenize();
+//			for (String str : result) {
+//				System.out.println(str);
+//			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		
+		
+		SplitSentences sentence = new SplitSentences(r.getText());
+		
+		try {
+			String[] result = sentence.tokenize();
 			for (String str : result) {
 				System.out.println(str);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}	
+		
 	}
 }

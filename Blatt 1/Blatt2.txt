@@ -1,0 +1,16 @@
+Document Analysis 2
+24.4.2016
+Fabian Sperrle, Rebecca Kehlbeck
+
+2. 
+
+
+
+3. We had no problems extracting the sentences of the reviews with the java String.split() function.
+However, problems arise if the sentences contain abbreviations. A sentence normally ends with a word, followed by
+a . an empty space a a new word of the next sentence, with has a capital starting letter. Our current regex 
+looks for a fullstop and determines if the word following afterwards starts with a capital letter via a look ahead. 
+However this might also match abbreviations followed by a word with a starting captal letter.
+As the reviews are written in English, we have to consider the English language. In English only names, days 
+and months as well as some abbreviations have a starting capital letter on their own. So even though the sentence might sometimes
+be split incorrectly, it should not happen very often.
