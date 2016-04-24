@@ -45,6 +45,5 @@ public class Tokenizer {
 
 		results = results.stream().map(token -> removeTrailingPeriod(token)).collect(Collectors.toList());
 		return results.toArray(new String[0]);
-	}
-	
+	}	
 }
