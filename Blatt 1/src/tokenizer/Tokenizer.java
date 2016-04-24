@@ -48,7 +48,6 @@ public class Tokenizer {
 		}
 
 		results = results.stream().map(token -> removeTrailingPeriod(token)).collect(Collectors.toList());
-		Files.write(Paths.get("data/text1.txt"), results);
 		return results.toArray(new String[0]);
 	}	
 }
