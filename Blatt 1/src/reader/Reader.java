@@ -80,6 +80,8 @@ public class Reader {
 			// Reviews are delimeted by empty lines. Finish the Review object and add it
 			// to the result list. Renew the temporary objects.
 			if (line.equals("")) {
+				if (tempReview.equals(new Review())) 
+					continue;
 				tempReview.setUser(tempUser);
 				list.add(tempReview);
 				

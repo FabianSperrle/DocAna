@@ -2,8 +2,7 @@ Document Analysis 2
 24.4.2016
 Fabian Sperrle, Rebecca Kehlbeck
 
-2. 
-
+2. Using Java's internal StreamTokenizer class tokenizing strings is super easy. The only little catch we had to look out for were strings in quotation marks, that needed a recursive call to be handled properly. Later, we used the new Stream API to efficiently clean off remaining trailing periods, and return the result as an Array of strings. 
 
 
 3. We had no problems extracting the sentences of the reviews with the java String.split() function.

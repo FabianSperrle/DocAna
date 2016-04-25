@@ -1,55 +1,68 @@
 package reader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
-import tokenizer.MissingInputException;
-import tokenizer.Tokenizer;
 import tokenizer.SplitSentences;
+import tokenizer.Tokenizer;
 
 public class Main {
 
 	public static void main(String[] args) throws IOException{
-	//we have truncated the data file for easier upload in ilias, as there is a 40 MB size limit
-		String filePath = "data/docAnaTextSample.rtf";
+		//we have truncated the data file for easier upload in ilias, as there is a 40 MB size limit
+		String filePath = "data/reviews.rtf";
 		Reader reader = new Reader(filePath);
 		
+		// Read the input and clean the data
 		List<Review> reviews = reader.readFile();
+		reviews.remove(0);
 		
-		StringBuilder text1 = new StringBuilder();
-		StringBuilder text2 = new StringBuilder();
-		StringBuilder text3 = new StringBuilder();
-		Review rtemp;
-		for (int i = 1; i < reviews.size(); i++) {
-			rtemp = reviews.get(i);
-			if (rtemp.getProduct().getProductID().equals("B004WO6BPS")) { //Harry Potter 7.1
-				text1.append(rtemp.getText());
-			} else if (rtemp.getProduct().getProductID().equals("B000IMM3XW")) { //X/Men
-				text2.append(rtemp.getText());
-			} else if (rtemp.getProduct().getProductID().equals("B00005YTR8")) { //Sherlock ?
-				text3.append(rtemp.getText());
+		// prepare string builders to collect all reviews of the 3 movies
+		StringBuilder[] builders = new StringBuilder[3];
+		builders[0] = new StringBuilder();
+		builders[1] = new StringBuilder();
+		builders[2] = new StringBuilder();
+
+		for (Review review : reviews) {
+			String productID = review.getProduct().getProductID();
+			//Harry Potter 7.1
+			if (productID.equals("B004WO6BPS")) {
+				builders[0].append(review.getText());
+			} // X-Men
+			else if (productID.equals("B000IMM3XW")) {
+				builders[1].append(review.getText());
+			} // Sherlock
+			else if (productID.equals("B00005YTR8")) {
+				builders[2].append(review.getText());
 			}
 		}
-		Review r = reviews.get(2);
-		System.out.println(r.getText());
-		Tokenizer tokenizer = new Tokenizer(r.getText());
-		try {
-			String[] result = tokenizer.tokenize();
-			Files.write(Paths.get(String.format("data/%s.txt",r.getProduct().getProductID())), Arrays.asList(result));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
-		SplitSentences sentence = new SplitSentences(r.getText());
+		
+		// Iterator with respective file names
+		Iterator<String> movies = Arrays.asList("Harry", "X-Men", "Sherlock").iterator();
+		
+		// Tokenize the reviews
+		for (StringBuilder stringBuilder : builders) {
+			String collectedReviews = stringBuilder.toString();
+			Tokenizer tokenizer = new Tokenizer(collectedReviews);
+			try {
+				String[] tokens = tokenizer.tokenize();
+				// Save results to file
+				Files.write(Paths.get(String.format("data/%s.txt", movies.next())), Arrays.asList(tokens));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		// Demo the sentence splitter
+		SplitSentences sentence = new SplitSentences(reviews.get(1).getText());
 		
 		try {
 			String[] result = sentence.tokenize();
+			System.out.println(Arrays.toString(result));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
 		
