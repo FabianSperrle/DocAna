@@ -16,7 +16,7 @@ public interface Rule {
 	 * and the correct ending sequence. 
 	 * 
 	 * @param token
-	 * @param syllables
+	 * @param stemmer
 	 * @return true iff the rule is applicable
 	 */
 	public boolean isApplicable(String token, Stemmer stemmer);

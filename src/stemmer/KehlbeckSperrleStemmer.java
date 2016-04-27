@@ -28,22 +28,20 @@ public class KehlbeckSperrleStemmer implements Stemmer  {
 		String current = token;
 		String previous = "";
 
+		logger.debug("==========================");
 		logger.debug("Starting to stem {}", token);
 
 		while (!current.equals(previous)) {
-			final int syllables = this.numberOfSyllabels(current);
+			final int measure = this.getMeasure(current);
 			boolean appliedAnyRule = false;
 
-			logger.debug("Currently there are {} syllables", syllables);
+			logger.debug("Current measure is {}.", measure);
 
 			for (Rule rule : rules) {
 				
 				logger.debug("Cheking next rule {}", rule.getName());
 				
 				if (rule.isApplicable(current, this)) {
-
-					logger.debug("Apply rule {}", rule.getName());
-
 					previous = current;
 					current = rule.apply(current);
 					appliedAnyRule = true;
@@ -51,9 +49,7 @@ public class KehlbeckSperrleStemmer implements Stemmer  {
 					logger.debug("Stem was {} and is {} now", previous, current);
 
 					break;
-				} else {
-					logger.debug("Rule {} is not applicable.", rule.getName());
-				}
+				} 
 			}
 			
 			if (!appliedAnyRule) {
@@ -71,7 +67,7 @@ public class KehlbeckSperrleStemmer implements Stemmer  {
 	 * @see stemmer.Stemmer#numberOfSyllabels(java.lang.String)
 	 */
 	@Override
-	public int numberOfSyllabels(final String token){
+	public int getMeasure(final String token){
 		final char[] word = token.toCharArray();
 		boolean charIsVowel = false;
 		int syllableCount = 0;

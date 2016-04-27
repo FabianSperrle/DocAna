@@ -15,7 +15,9 @@ public class PluralS implements Rule {
 	 */
 	@Override
 	public boolean isApplicable(String token, Stemmer stemmer) {
-		if (token.endsWith("s")) {
+		String remainingStem = token.substring(0, token.length()-1);
+		
+		if (token.endsWith("s") && stemmer.getMeasure(remainingStem) > 0) {
 			
 			logger.debug("Rule {} is applicable", this.getName());
 			
@@ -33,6 +35,9 @@ public class PluralS implements Rule {
 	 */
 	@Override
 	public String apply(String token) {
+		
+		logger.debug("Apply rule {}", this.getName());
+		
 		return token.substring(0, token.length()-1);
 	}
 

@@ -24,7 +24,7 @@ public class AtionAte implements Rule {
 		}
 		
 		String remainingStem = token.substring(0, token.length() - 5);
-		if (token.endsWith("ation") && stemmer.numberOfSyllabels(remainingStem) > 0) {
+		if (token.endsWith("ation") && stemmer.getMeasure(remainingStem) > 0) {
 
 			logger.debug("Rule {} is applicable", this.getName());
 
@@ -43,6 +43,9 @@ public class AtionAte implements Rule {
 	 */
 	@Override
 	public String apply(String token) {
+		
+		logger.debug("Apply rule {}", this.getName());
+
 		return token.substring(0, token.length() - 5) + "ate";
 	}
 
