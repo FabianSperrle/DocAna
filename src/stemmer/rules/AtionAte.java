@@ -16,8 +16,12 @@ public class AtionAte implements Rule {
 	@Override
 	public boolean isApplicable(String token, Stemmer stemmer) {
 		// After removing 5 letters we need at least two left to have m>0
-		if (token.length() < 7)
+		if (token.length() < 7) {
+
+			logger.debug("Rule {} is not applicable", this.getName());
+			
 			return false;
+		}
 		
 		String remainingStem = token.substring(0, token.length() - 5);
 		if (token.endsWith("ation") && stemmer.numberOfSyllabels(remainingStem) > 0) {
