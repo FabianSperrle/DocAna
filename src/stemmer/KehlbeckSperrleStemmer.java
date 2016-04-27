@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import stemmer.rules.*;
 
-public class KehlbeckSperrleStemmer {
+public class KehlbeckSperrleStemmer implements Stemmer  {
 	private final Logger logger = LogManager.getLogger(KehlbeckSperrleStemmer.class);
 	
 	
@@ -20,6 +20,10 @@ public class KehlbeckSperrleStemmer {
 			new AtionAte(),
 	};
 
+	/* (non-Javadoc)
+	 * @see stemmer.Stemmer#stem(java.lang.String)
+	 */
+	@Override
 	public String stem(final String token) {
 		String current = token;
 		String previous = "";
@@ -36,7 +40,7 @@ public class KehlbeckSperrleStemmer {
 				
 				logger.debug("Cheking next rule {}", rule.getName());
 				
-				if (rule.isApplicable(current, syllables)) {
+				if (rule.isApplicable(current, this)) {
 
 					logger.debug("Apply rule {}", rule.getName());
 
@@ -63,6 +67,10 @@ public class KehlbeckSperrleStemmer {
 		return current;
 	}
 
+	/* (non-Javadoc)
+	 * @see stemmer.Stemmer#numberOfSyllabels(java.lang.String)
+	 */
+	@Override
 	public int numberOfSyllabels(final String token){
 		final char[] word = token.toCharArray();
 		boolean charIsVowel = false;

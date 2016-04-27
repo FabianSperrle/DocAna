@@ -3,6 +3,8 @@ package stemmer.rules;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import stemmer.Stemmer;
+
 public class PluralS implements Rule {
 	
 	private final String NAME = "PluralS";
@@ -12,7 +14,7 @@ public class PluralS implements Rule {
 	 * {@inheritDoc }
 	 */
 	@Override
-	public boolean isApplicable(String token, int syllables) {
+	public boolean isApplicable(String token, Stemmer stemmer) {
 		if (token.endsWith("s")) {
 			
 			logger.debug("Rule {} is applicable", this.getName());

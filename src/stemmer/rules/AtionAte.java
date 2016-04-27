@@ -3,6 +3,8 @@ package stemmer.rules;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import stemmer.Stemmer;
+
 public class AtionAte implements Rule {
 	private final Logger logger = LogManager.getLogger(AtionAte.class);
 
@@ -12,13 +14,18 @@ public class AtionAte implements Rule {
 	 * {@inheritDoc }
 	 */
 	@Override
-	public boolean isApplicable(String token, int syllables) {
-		if (syllables > 0 && token.endsWith("ation")) {
-			
+	public boolean isApplicable(String token, Stemmer stemmer) {
+		// After removing 5 letters we need at least two left to have m>0
+		if (token.length() < 7)
+			return false;
+		
+		String remainingStem = token.substring(0, token.length() - 5);
+		if (token.endsWith("ation") && stemmer.numberOfSyllabels(remainingStem) > 0) {
+
 			logger.debug("Rule {} is applicable", this.getName());
-			
+
 			return true;
-			
+
 		} else {
 
 			logger.debug("Rule {} is not applicable", this.getName());

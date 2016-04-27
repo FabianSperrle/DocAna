@@ -1,5 +1,7 @@
 package stemmer.rules;
 
+import stemmer.Stemmer;
+
 public interface Rule {
 	
 	/**
@@ -17,7 +19,7 @@ public interface Rule {
 	 * @param syllables
 	 * @return true iff the rule is applicable
 	 */
-	public boolean isApplicable(String token, int syllables);
+	public boolean isApplicable(String token, Stemmer stemmer);
 	
 	/**
 	 * Applies the rule to the token.

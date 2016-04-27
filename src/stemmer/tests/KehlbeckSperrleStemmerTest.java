@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import stemmer.KehlbeckSperrleStemmer;
+import stemmer.Stemmer;
 
 public class KehlbeckSperrleStemmerTest extends KehlbeckSperrleStemmer {
 	
@@ -13,7 +14,7 @@ public class KehlbeckSperrleStemmerTest extends KehlbeckSperrleStemmer {
 
 	@Test
 	public void zeroSyllables() {
-		KehlbeckSperrleStemmer stemmer = new KehlbeckSperrleStemmer();
+		Stemmer stemmer = new KehlbeckSperrleStemmer();
 		String[] testWords = { "TO", "CNN" };
 
 		for (String token : testWords) {
@@ -23,7 +24,7 @@ public class KehlbeckSperrleStemmerTest extends KehlbeckSperrleStemmer {
 
 	@Test
 	public void oneSyllable() {
-		KehlbeckSperrleStemmer stemmer = new KehlbeckSperrleStemmer();
+		Stemmer stemmer = new KehlbeckSperrleStemmer();
 		String[] testWords = { "or", "brick" };
 
 		for (String token : testWords) {
@@ -33,7 +34,7 @@ public class KehlbeckSperrleStemmerTest extends KehlbeckSperrleStemmer {
 
 	@Test
 	public void twoSyllables() {
-		KehlbeckSperrleStemmer stemmer = new KehlbeckSperrleStemmer();
+		Stemmer stemmer = new KehlbeckSperrleStemmer();
 		String[] testWords = { "eastern", "dogmas" };
 
 		for (String token : testWords) {
@@ -43,7 +44,7 @@ public class KehlbeckSperrleStemmerTest extends KehlbeckSperrleStemmer {
 
 	@Test
 	public void stem() {
-		KehlbeckSperrleStemmer stemmer = new KehlbeckSperrleStemmer();
+		Stemmer stemmer = new KehlbeckSperrleStemmer();
 		Pair[] testWords = { new Pair("alienation", "alienate"), new Pair("words", "word"), new Pair("nation", "nation") };
 
 		for (Pair pair : testWords) {
