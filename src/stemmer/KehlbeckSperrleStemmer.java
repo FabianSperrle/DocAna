@@ -9,17 +9,6 @@ public class KehlbeckSperrleStemmer implements Stemmer  {
 	private final Logger logger = LogManager.getLogger(KehlbeckSperrleStemmer.class);
 	
 	
-	/**
-	 * Array of rules that can be applied to stem a word.
-	 * The order of the  rules is important! The first matching
-	 * rule of the list will be applied, and the iteration through
-	 * the list will be restarted. 
-	 */
-	private final Rule[] rules = {
-			new PluralS(),
-			new AtionAte(),
-	};
-
 	/* (non-Javadoc)
 	 * @see stemmer.Stemmer#stem(java.lang.String)
 	 */
@@ -37,17 +26,14 @@ public class KehlbeckSperrleStemmer implements Stemmer  {
 
 			logger.debug("Current measure is {}.", measure);
 
-			for (Rule rule : rules) {
+			for (Rules RULE : Rules.values()) {
 				
-				logger.debug("Cheking next rule {}", rule.getName());
+				logger.debug("Cheking next rule {}", RULE);
 				
-				if (rule.isApplicable(current, this)) {
+				if (RULE.isApplicable(current)) {
 					previous = current;
-					current = rule.apply(current);
+					current = RULE.apply(current);
 					appliedAnyRule = true;
-
-					logger.debug("Stem was {} and is {} now", previous, current);
-
 					break;
 				} 
 			}
@@ -70,7 +56,7 @@ public class KehlbeckSperrleStemmer implements Stemmer  {
 	public int getMeasure(final String token){
 		final char[] word = token.toCharArray();
 		boolean charIsVowel = false;
-		int syllableCount = 0;
+		int measure = 0;
 		for (char c : word) {
 			switch (c) {
 			case 'a':
@@ -87,12 +73,12 @@ public class KehlbeckSperrleStemmer implements Stemmer  {
 				break;
 			default:
 				if (charIsVowel) {
-					syllableCount++;
+					measure++;
 					charIsVowel = false;
 				}
 				break;
 			}
 		}
-		return syllableCount;
+		return measure;
 	}
 }

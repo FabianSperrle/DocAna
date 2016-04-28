@@ -45,8 +45,14 @@ public class KehlbeckSperrleStemmerTest extends KehlbeckSperrleStemmer {
 	@Test
 	public void stem() {
 		Stemmer stemmer = new KehlbeckSperrleStemmer();
-		Pair[] testWords = { new Pair("alienation", "alienate"), new Pair("words", "word"),
-				new Pair("nation", "nation"), new Pair("bus", "bus") };
+		Pair[] testWords = { new Pair("alienation", "alienate"), 
+				new Pair("words", "word"),
+				new Pair("nation", "nation"), 
+				new Pair("bus", "bus"),
+				new Pair("signed", "sign"),
+				new Pair("bed", "bed"),
+				new Pair("beds", "bed"),
+			};
 
 		for (Pair pair : testWords) {
 			assertEquals(pair.getValue() + "'s stem should be " + pair.getExpectedResult(), pair.getExpectedResult(),
