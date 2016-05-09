@@ -45,7 +45,7 @@ public class KehlbeckSperrleStemmerTest extends KehlbeckSperrleStemmer {
 	@Test
 	public void stem() {
 		Stemmer stemmer = new KehlbeckSperrleStemmer();
-		Pair[] testWords = { new Pair("alienation", "alienate"), 
+		Pair[] testWords = { new Pair("alienation", "alienat"), 
 				new Pair("words", "word"),
 				new Pair("nation", "nation"), 
 				new Pair("bus", "bus"),
@@ -53,6 +53,7 @@ public class KehlbeckSperrleStemmerTest extends KehlbeckSperrleStemmer {
 				new Pair("bed", "bed"),
 				new Pair("beds", "bed"),
 				new Pair("running", "run"),
+				new Pair("skulls", "skull"),
 			};
 
 		for (Pair pair : testWords) {

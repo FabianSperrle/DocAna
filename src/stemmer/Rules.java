@@ -19,8 +19,14 @@ public enum Rules {
 			t -> t.endsWith("ation"),
 			t -> t.substring(0, t.length() - 5),
 			t -> t + "ate"),
+	Ion_(1,
+			t -> t.endsWith("ion"),
+			t -> t.substring(0, t.length() - 3)),
 	Ify_(1,
 			t -> t.endsWith("ify"),
+			t -> t.substring(0, t.length() - 3)),
+	Ary_(1,
+			t -> t.endsWith("ary"),
 			t -> t.substring(0, t.length() - 3)),
 	Ment_(1,
 			t -> t.endsWith("ment"),
@@ -47,7 +53,11 @@ public enum Rules {
 			t -> t.endsWith("e"),
 			t -> t.substring(0, t.length() - 1)),
 	DoubleConsonantEnding(1,
-			t -> t.charAt(t.length() - 1) == t.charAt(t.length() - 2),
+			t -> t.charAt(t.length() - 1) == t.charAt(t.length() - 2) 
+				&& t.charAt(t.length()-1) != 'f' 
+				&& t.charAt(t.length()-1) != 'l'
+				&& t.charAt(t.length()-1) != 'z'
+				&& t.charAt(t.length()-1) != 's',
 			t -> t.substring(0, t.length() - 1));
 
 	/**
