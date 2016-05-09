@@ -52,6 +52,7 @@ public class KehlbeckSperrleStemmerTest extends KehlbeckSperrleStemmer {
 				new Pair("signed", "sign"),
 				new Pair("bed", "bed"),
 				new Pair("beds", "bed"),
+				new Pair("running", "run"),
 			};
 
 		for (Pair pair : testWords) {

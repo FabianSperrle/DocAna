@@ -3,8 +3,6 @@ package stemmer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import stemmer.rules.*;
-
 public class KehlbeckSperrleStemmer implements Stemmer  {
 	private final Logger logger = LogManager.getLogger(KehlbeckSperrleStemmer.class);
 	
