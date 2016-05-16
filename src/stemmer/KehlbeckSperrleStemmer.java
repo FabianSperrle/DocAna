@@ -28,12 +28,16 @@ public class KehlbeckSperrleStemmer implements Stemmer  {
 				
 				logger.debug("Cheking next rule {}", RULE);
 				
-				if (RULE.isApplicable(current)) {
-					previous = current;
-					current = RULE.apply(current);
-					appliedAnyRule = true;
-					break;
-				} 
+				try {
+					if (RULE.isApplicable(current)) {
+						previous = current;
+						current = RULE.apply(current);
+						appliedAnyRule = true;
+						break;
+					} 
+				} catch (StringIndexOutOfBoundsException e) {
+					continue;
+				}
 			}
 			
 			if (!appliedAnyRule) {

@@ -9,6 +9,8 @@ import java.util.List;
 import de.tudarmstadt.ukp.jwktl.parser.WiktionaryArticleParser;
 import reader.Reader;
 import reader.Review;
+import stemmer.KehlbeckSperrleStemmer;
+import stemmer.Stemmer;
 import tokenizer.SplitSentences;
 import tokenizer.Tokenizer;
 
@@ -52,8 +54,15 @@ public class Main {
 			Tokenizer tokenizer = new Tokenizer(collectedReviews);
 			try {
 				String[] tokens = tokenizer.tokenize();
+				
+				Stemmer stemmer = new KehlbeckSperrleStemmer();
+				String[] stems = new String[tokens.length];
+				for (int i = 0; i < tokens.length; i++) {
+					stems[i] = stemmer.stem(tokens[i]);
+				}
+				
 				// Save results to file
-				Files.write(Paths.get(String.format("data/%s.txt", movies.next())), Arrays.asList(tokens));
+				Files.write(Paths.get(String.format("data/%s.txt", movies.next())), Arrays.asList(stems));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
