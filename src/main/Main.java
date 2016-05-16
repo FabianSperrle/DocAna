@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import de.tudarmstadt.ukp.jwktl.parser.WiktionaryArticleParser;
 import reader.Reader;
 import reader.Review;
 import stemmer.KehlbeckSperrleStemmer;
@@ -18,7 +17,7 @@ public class Main {
 
 	public static void main(String[] args) throws IOException{
 		//we have truncated the data file for easier upload in ilias, as there is a 40 MB size limit
-		String filePath = "data/reviews.rtf";
+		String filePath = "data/docAnaTextSample.rtf";
 		Reader reader = new Reader(filePath);
 		
 		// Read the input and clean the data
@@ -62,12 +61,15 @@ public class Main {
 				}
 				
 				// Save results to file
-				Files.write(Paths.get(String.format("data/%s.txt", movies.next())), Arrays.asList(stems));
+				String curr = movies.next();
+				Files.write(Paths.get(String.format("data/%s.txt", curr)), Arrays.asList(stems));
+				WordCloudCreator creator = new WordCloudCreator(String.format("data/%s.png", curr), "data/whale.png", String.format("data/%s.txt", curr));
+				creator.createWordCloud();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-
+		
 		// Demo the sentence splitter
 		SplitSentences sentence = new SplitSentences(reviews.get(1).getText());
 		

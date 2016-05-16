@@ -50,5 +50,10 @@
   		<artifactId>jwi</artifactId>
   		<version>2.2.3</version>
   	</dependency>
+  	<dependency>
+  		<groupId>com.kennycason</groupId>
+  		<artifactId>kumo</artifactId>
+  		<version>1.5</version>
+  	</dependency>
   </dependencies>
 </project>

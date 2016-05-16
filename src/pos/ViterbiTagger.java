@@ -46,7 +46,6 @@ public class ViterbiTagger {
 		// <<tag, tag>, <tag, count>>
 		Map<String, Map<String, Integer>> ngramCount = new HashMap<>();
 
-		// Read all trainig files and count occurences
 		for (File file : this.corpusFiles) {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 
