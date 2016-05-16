@@ -13,8 +13,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,8 +31,8 @@ public class ViterbiTagger {
 	private Logger logger = LogManager.getLogger(ViterbiTagger.class);
 
 	// <token, <tag, probability>>
-	private Map<String, Map<String, BigDecimal>> emissionParameters = new HashMap<>();
-	private Map<String, Map<String, BigDecimal>> trigramParameters = new HashMap<>();
+	private Hashtable<String, Hashtable<String, Float>> emissionParameters = new Hashtable<String, Hashtable<String, Float>>();
+	private Hashtable<String, Hashtable<String, Float>> trigramParameters = new Hashtable<String, Hashtable<String, Float>>();
 	private String[] tags;
 
 	private List<File> corpusFiles;
@@ -155,11 +157,11 @@ public class ViterbiTagger {
 				int count = tokenCount.getValue();
 
 				if (this.emissionParameters.containsKey(token)) {
-					Map<String, BigDecimal> map = this.emissionParameters.get(token);
-					map.put(tag, new BigDecimal(count).divide(new BigDecimal(sumOfOccurences), MathContext.DECIMAL128));
+					Hashtable<String, Float> map = this.emissionParameters.get(token);
+					map.put(tag,(float)(count/sumOfOccurences));
 				} else {
-					Map<String, BigDecimal> map = new HashMap<>();
-					map.put(tag, new BigDecimal(count).divide(new BigDecimal(sumOfOccurences), MathContext.DECIMAL128));
+					Hashtable<String, Float> map = new Hashtable<>();
+					map.put(tag, (float)(count/sumOfOccurences));
 					this.emissionParameters.put(token, map);
 				}
 			}
@@ -178,21 +180,20 @@ public class ViterbiTagger {
 				int count = tagCount.getValue();
 
 				if (this.trigramParameters.containsKey(predecessors)) {
-					Map<String, BigDecimal> map = this.trigramParameters.get(predecessors);
-					map.put(tag, new BigDecimal(count).divide(new  BigDecimal(sumOfOccurences), MathContext.DECIMAL128));
+					Hashtable<String, Float> map = this.trigramParameters.get(predecessors);
+					map.put(tag,(float)(count/sumOfOccurences));
 				} else {
-					Map<String, BigDecimal> map = new HashMap<>();
-					map.put(tag, new  BigDecimal(count).divide(new BigDecimal(sumOfOccurences), MathContext.DECIMAL128));
-
+					Hashtable<String, Float> map = new Hashtable<>();
+					map.put(tag, (float)(count/sumOfOccurences));
 					this.trigramParameters.put(predecessors, map);
 				}
 			}
 		}
 
 		if (this.logger.isDebugEnabled()) {
-			for (Map.Entry<String, Map<String, BigDecimal>> tokenMap : this.emissionParameters.entrySet()) {
+			for (Entry<String, Hashtable<String, Float>> tokenMap : this.emissionParameters.entrySet()) {
 				String token = tokenMap.getKey();
-				for (Map.Entry<String, BigDecimal> tagMap : tokenMap.getValue().entrySet()) {
+				for (Map.Entry<String, Float> tagMap : tokenMap.getValue().entrySet()) {
 					this.logger.debug("Token {} appears as {} with probability of {}", token, tagMap.getKey(),
 							tagMap.getValue());
 				}
@@ -200,9 +201,9 @@ public class ViterbiTagger {
 		}
 
 		if (this.logger.isDebugEnabled()) {
-			for (Map.Entry<String, Map<String, BigDecimal>> tokenMap : this.trigramParameters.entrySet()) {
+			for (Entry<String, Hashtable<String, Float>> tokenMap : this.trigramParameters.entrySet()) {
 				String tag = tokenMap.getKey();
-				for (Map.Entry<String, BigDecimal> tagMap : tokenMap.getValue().entrySet()) {
+				for (Map.Entry<String, Float> tagMap : tokenMap.getValue().entrySet()) {
 					this.logger.debug("Tag {} appears after {} with probability of {}", tagMap.getKey(), tag,
 							tagMap.getValue());
 				}
@@ -213,29 +214,57 @@ public class ViterbiTagger {
 		Arrays.sort(this.tags);
 		this.logger.debug(Arrays.toString(this.tags));
 	}
+	
+	public String getTagListSimple(String sentence) throws IOException {
+		Tokenizer tok = new Tokenizer(sentence);
+		String[] tokens = tok.tokenize();
+		Float[] probabilities = new Float[tokens.length];
+		String[] tags = new String[tokens.length];
+		
+		Float e =new Float(0);
+		Float g =new Float(0);
+		for (int k = 0; k < tokens.length; k++) {
+			if (this.emissionParameters.containsKey(tokens[k])) {
+				Hashtable<String,Float> val = this.emissionParameters.get(tokens[k]);
+				//if (this.emissionParameters.get(tokens[k]).containsKey(tags[v])) {
+				String s = val.keys().nextElement();
+				g = val.get(s);
+				probabilities[k] = g;
+				tags[k] = s;
+				//}
+			}
+		}
+		e = g;
+		logger.debug(Arrays.toString(probabilities));
+		logger.debug(Arrays.toString(tags));
+
+		return tags[0];
+	}
 
 	public void getTagList(String sentence) throws IOException {
 		Tokenizer tok = new Tokenizer(sentence);
 		String[] tokens = tok.tokenize();
 		
-		BigDecimal[][][] probabilities = new BigDecimal[tokens.length][this.tags.length][this.tags.length];
+		float[][][] probabilities = new float[tokens.length][this.tags.length][this.tags.length];
 		int[][][] backpointer = new int[tokens.length][this.tags.length][this.tags.length];
-
 		for (int k = 0; k < tokens.length; k++) {
 			System.err.println(k);
 			for (int u = 0; u < this.tags.length; u++) {
 				for (int v = 0; v < this.tags.length; v++) {
 					for (int w = 0; w < this.tags.length; w++) {
-						BigDecimal pik_1wu = k == 0 ? new BigDecimal(1) : probabilities[k - 1][w][u];
+						Float pik_1wu = k == 0 ? new Float(1) : probabilities[k - 1][w][u];
 						
-						BigDecimal e = new BigDecimal(0);
+						Float e =new Float(0);
+						Float g =new Float(0);
 						if (this.emissionParameters.containsKey(tokens[k])) {
-							if (this.emissionParameters.get(tokens[k]).containsKey(tags[v])) {
+							Hashtable<String,Float> val = this.emissionParameters.get(tokens[k]);
+							//if (this.emissionParameters.get(tokens[k]).containsKey(tags[v])) {
 								e = this.emissionParameters.get(tokens[k]).get(tags[v]);
-							}
+								g = val.get(val.keys().nextElement());
+							//}
 						}
-						
-						BigDecimal q = new BigDecimal(0);
+						e = g;
+						Float q = new Float(0);
 						if (k == 0) {
 							if (this.trigramParameters.get("§#§").containsKey(tags[v])) {
 								q = this.trigramParameters.get("§#§").get(tags[v]);
@@ -254,9 +283,9 @@ public class ViterbiTagger {
 							}
 						}
 
-						BigDecimal prob = pik_1wu.multiply(q).multiply(e);
+						Float prob = pik_1wu*q*e;
 						
-						if (probabilities[k][w][u] == null || prob.compareTo(probabilities[k][w][u]) == 1) {
+						if (probabilities[k][w][u] == 0 || prob.compareTo(probabilities[k][w][u]) == 1) {
 							probabilities[k][w][u] = prob;
 							backpointer[k][u][v] = w;
 						}
@@ -267,19 +296,19 @@ public class ViterbiTagger {
 		
 		int[] resultIDs = new int[tokens.length];
 		
-		BigDecimal maxStopProb = new BigDecimal(0);
+		Float maxStopProb = new Float(0);
 		int n = tokens.length - 1;
 		logger.debug(this.tags.length);
 		for (int u = 0; u < this.tags.length; u++) {
 			for (int v = 0; v < this.tags.length; v++) {
-				BigDecimal q = new BigDecimal(0);
+				Float q = new Float(0);
 				if (this.trigramParameters.containsKey(tags[u] + "#" + tags[v])) {
 					if (this.trigramParameters.get(tags[u] + "#" + tags[v]).containsKey("STOP")) {
 						q = this.trigramParameters.get(tags[u] + "#" + tags[v]).get("STOP");
 						this.logger.debug("Probability of {}#{}#STOP is {}", tags[u], tags[v], q);
 					}
 				}
-				BigDecimal pi = probabilities[n][u][v].multiply(q);
+				Float pi = probabilities[n][u][v]*q;
 				if (pi.compareTo(maxStopProb) == 1) {
 					this.logger.debug("New highest value: {} by {}#{}", pi, tags[u], tags[v]);
 					maxStopProb = pi;
@@ -306,6 +335,7 @@ public class ViterbiTagger {
 		ViterbiTagger v = new ViterbiTagger();
 		v.learnCorpus("data/brown");
 
-		v.getTagList("At the end of the algorithm, we unravel the backpointers to find the highest probability sequence, and then return this sequence");
+		//v.getTagList("At the end of the algorithm, we unravel the backpointers to find the highest probability sequence, and then return this sequence");
+		//v.getTagListSimple("This is a very complicated sentence");
 	}
 }

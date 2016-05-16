@@ -2,10 +2,12 @@ package main;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import pos.ViterbiTagger;
 import reader.Reader;
 import reader.Review;
 import stemmer.KehlbeckSperrleStemmer;
@@ -17,7 +19,7 @@ public class Main {
 
 	public static void main(String[] args) throws IOException{
 		//we have truncated the data file for easier upload in ilias, as there is a 40 MB size limit
-		String filePath = "data/reviews.rtf";
+		String filePath = "data/docAnaTextSample.rtf";
 		Reader reader = new Reader(filePath);
 		
 		// Read the input and clean the data
@@ -43,7 +45,8 @@ public class Main {
 				builders[2].append(review.getText());
 			}
 		}
-		
+		ViterbiTagger v = new ViterbiTagger();
+		v.learnCorpus("data/brown");
 		// Iterator with respective file names
 		Iterator<String> movies = Arrays.asList("Harry", "X-Men", "Sherlock").iterator();
 		
@@ -56,15 +59,39 @@ public class Main {
 				
 				Stemmer stemmer = new KehlbeckSperrleStemmer();
 				String[] stems = new String[tokens.length];
+				String[] pos = new String[tokens.length];
 				for (int i = 0; i < tokens.length; i++) {
 					stems[i] = stemmer.stem(tokens[i]);
+					pos[i] = v.getTagListSimple(stems[i]);
 				}
-				
-				// Save results to file
+				ArrayList<String> NN =new ArrayList<String>();
+				ArrayList<String> AP =new ArrayList<String>();
+				ArrayList<String> VB =new ArrayList<String>();
+				for (int i = 0; i < tokens.length; i++) {
+					if (pos[i] != null) {
+						if (pos[i].equals("nn")){
+							NN.add(stems[i]);
+						}else if (pos[i].equals("ap")){
+							AP.add(stems[i]);
+						}else if (pos[i].equals("vb")){
+							VB.add(stems[i]);
+						}
+					}
+				}
+				// Save results to file, create Word Clouds
 				String curr = movies.next();
-				Files.write(Paths.get(String.format("data/%s.txt", curr)), Arrays.asList(stems));
-				WordCloudCreator creator = new WordCloudCreator(String.format("data/%s.png", curr), "data/whale.png", String.format("data/%s.txt", curr));
+				Files.write(Paths.get(String.format("data/%sNN.txt", curr)), NN);
+				WordCloudCreator creator = new WordCloudCreator(String.format("data/%sNN.png", curr), "data/whale.png", String.format("data/%sNN.txt", curr));
+				
+				Files.write(Paths.get(String.format("data/%sAP.txt", curr)), AP);
+				WordCloudCreator creator2 = new WordCloudCreator(String.format("data/%sAP.png", curr), "data/whale.png", String.format("data/%sAP.txt", curr));
+				
+				Files.write(Paths.get(String.format("data/%sVB.txt", curr)), VB);
+				WordCloudCreator creator3 = new WordCloudCreator(String.format("data/%sVB.png", curr), "data/whale.png", String.format("data/%sVB1.txt", curr));
+				
 				creator.createWordCloud();
+				creator2.createWordCloud();
+				creator3.createWordCloud();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -75,7 +102,7 @@ public class Main {
 		
 		try {
 			String[] result = sentence.tokenize();
-			System.out.println(Arrays.toString(result));
+			//System.out.println(Arrays.toString(result));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}	
