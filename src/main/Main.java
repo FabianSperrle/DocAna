@@ -16,7 +16,7 @@ public class Main {
 
 	public static void main(String[] args) throws IOException{
 		//we have truncated the data file for easier upload in ilias, as there is a 40 MB size limit
-		String filePath = "data/reviews.rtf";
+		String filePath = "data/docAnaTextSample.rtf";
 		Reader reader = new Reader(filePath);
 		
 		// Read the input and clean the data
@@ -54,11 +54,13 @@ public class Main {
 				String[] tokens = tokenizer.tokenize();
 				// Save results to file
 				Files.write(Paths.get(String.format("data/%s.txt", movies.next())), Arrays.asList(tokens));
+				WordCloudCreator creator = new WordCloudCreator(String.format("data/%s.png", movies.next()), "data/whale.png", String.format("data/%s.txt", movies.next()));
+				creator.createWordCloud();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-
+		
 		// Demo the sentence splitter
 		SplitSentences sentence = new SplitSentences(reviews.get(1).getText());
 		
