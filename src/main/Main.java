@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import de.tudarmstadt.ukp.jwktl.parser.WiktionaryArticleParser;
 import reader.Reader;
 import reader.Review;
 import stemmer.KehlbeckSperrleStemmer;
