@@ -62,8 +62,9 @@ public class Main {
 				}
 				
 				// Save results to file
-				//Files.write(Paths.get(String.format("data/%s.txt", movies.next())), Arrays.asList(stems));
-				WordCloudCreator creator = new WordCloudCreator(String.format("data/%s.png", movies.next()), "data/whale.png", String.format("data/%s.txt", movies.next()));
+				String curr = movies.next();
+				Files.write(Paths.get(String.format("data/%s.txt", curr)), Arrays.asList(stems));
+				WordCloudCreator creator = new WordCloudCreator(String.format("data/%s.png", curr), "data/whale.png", String.format("data/%s.txt", curr));
 				creator.createWordCloud();
 			} catch (IOException e) {
 				e.printStackTrace();
