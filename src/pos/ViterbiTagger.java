@@ -105,11 +105,19 @@ public class ViterbiTagger {
 					tagList.add(tag);
 				}
 				tagList.add("STOP");
+				
+				if (tagList.size() == 3) {
+					line = reader.readLine();
+					continue;
+				}
 
 				// Entire line read; do something with the tag list!
 				for (int i = 2; i < tagList.size(); i++) {
 					String tag = tagList.get(i);
 					String predecessors = tagList.get(i - 2) + "#" + tagList.get(i - 1);
+					if (tag.equals("STOP")) {
+						this.logger.debug(predecessors);
+					}
 					if (ngramCount.containsKey(predecessors)) {
 						Map<String, Integer> map = ngramCount.get(predecessors);
 						if (map.containsKey(tag)) {
@@ -190,9 +198,14 @@ public class ViterbiTagger {
 		if (this.logger.isDebugEnabled()) {
 			for (Map.Entry<String, Map<String, Double>> tokenMap : this.trigramParameters.entrySet()) {
 				String tag = tokenMap.getKey();
+				double t = 0;
 				for (Map.Entry<String, Double> tagMap : tokenMap.getValue().entrySet()) {
-					this.logger.debug("Tag {} appears after {} with probability of {}", tag, tagMap.getKey(),
+					this.logger.debug("Tag {} appears after {} with probability of {}", tagMap.getKey(), tag,
 							tagMap.getValue());
+					t += tagMap.getValue();
+				}
+				if (t != 1) {
+					throw new RuntimeException(tag);
 				}
 			}
 		}
