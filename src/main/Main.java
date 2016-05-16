@@ -87,7 +87,7 @@ public class Main {
 				WordCloudCreator creator2 = new WordCloudCreator(String.format("data/%sAP.png", curr), "data/whale.png", String.format("data/%sAP.txt", curr));
 				
 				Files.write(Paths.get(String.format("data/%sVB.txt", curr)), VB);
-				WordCloudCreator creator3 = new WordCloudCreator(String.format("data/%sVB.png", curr), "data/whale.png", String.format("data/%sVB1.txt", curr));
+				WordCloudCreator creator3 = new WordCloudCreator(String.format("data/%sVB.png", curr), "data/whale.png", String.format("data/%sVB.txt", curr));
 				
 				creator.createWordCloud();
 				creator2.createWordCloud();
