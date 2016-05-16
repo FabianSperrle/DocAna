@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,8 +29,8 @@ public class ViterbiTagger {
 	private Logger logger = LogManager.getLogger(ViterbiTagger.class);
 
 	// <token, <tag, probability>>
-	private Map<String, Map<String, Double>> emissionParameters = new HashMap<>();
-	private Map<String, Map<String, Double>> trigramParameters = new HashMap<>();
+	private Map<String, Map<String, BigDecimal>> emissionParameters = new HashMap<>();
+	private Map<String, Map<String, BigDecimal>> trigramParameters = new HashMap<>();
 	private String[] tags;
 
 	private List<File> corpusFiles;
@@ -36,7 +38,7 @@ public class ViterbiTagger {
 	public void learnCorpus(String pathString) throws IOException {
 		Path path = Paths.get(pathString);
 		this.corpusFiles = Files.walk(path).filter(Files::isRegularFile).map(Path::toFile)
-				// .filter(file -> file.getName().startsWith("cc")) // only
+				.filter(file -> file.getName().startsWith("cc")) // only
 				// reviews
 				.collect(Collectors.toList());
 
@@ -51,12 +53,15 @@ public class ViterbiTagger {
 
 			String line = reader.readLine();
 			while (line != null) {
+				// Split the line into token/tag pairs
 				ArrayList<String> tokensWithTages = new ArrayList<String>(Arrays.asList(line.split("\\s")));
+				
+				// Fill index positions -2 and -1
 				List<String> tagList = new ArrayList<>();
 				tagList.add("§");
 				tagList.add("§");
 
-				// Count the occurences
+				// Count the occurences of each tag
 				for (String combination : tokensWithTages) {
 					if (combination.equals("")) {
 						continue;
@@ -86,7 +91,7 @@ public class ViterbiTagger {
 						continue;
 					}
 
-					// Handle emission parameter updates
+					// Update the counter for each token/tag pair
 					if (countTokensPerTag.containsKey(tag)) {
 						Map<String, Integer> map = countTokensPerTag.get(tag);
 						if (map.containsKey(token)) {
@@ -106,6 +111,7 @@ public class ViterbiTagger {
 				}
 				tagList.add("STOP");
 				
+				// Taglist only contains §,§,STOP (i.e. empty line in the corpus file)
 				if (tagList.size() == 3) {
 					line = reader.readLine();
 					continue;
@@ -115,11 +121,10 @@ public class ViterbiTagger {
 				for (int i = 2; i < tagList.size(); i++) {
 					String tag = tagList.get(i);
 					String predecessors = tagList.get(i - 2) + "#" + tagList.get(i - 1);
-					if (tag.equals("STOP")) {
-						this.logger.debug(predecessors);
-					}
+					// Check if we have seen that predecessor pair before
 					if (ngramCount.containsKey(predecessors)) {
 						Map<String, Integer> map = ngramCount.get(predecessors);
+						// We have, even in combination with the current tag
 						if (map.containsKey(tag)) {
 							map.put(tag, map.get(tag) + 1);
 						} else {
@@ -150,12 +155,11 @@ public class ViterbiTagger {
 				int count = tokenCount.getValue();
 
 				if (this.emissionParameters.containsKey(token)) {
-					Map<String, Double> map = this.emissionParameters.get(token);
-					map.put(tag, count / sumOfOccurences);
+					Map<String, BigDecimal> map = this.emissionParameters.get(token);
+					map.put(tag, new BigDecimal(count).divide(new BigDecimal(sumOfOccurences), MathContext.DECIMAL128));
 				} else {
-					Map<String, Double> map = new HashMap<>();
-					map.put(tag, count / sumOfOccurences);
-
+					Map<String, BigDecimal> map = new HashMap<>();
+					map.put(tag, new BigDecimal(count).divide(new BigDecimal(sumOfOccurences), MathContext.DECIMAL128));
 					this.emissionParameters.put(token, map);
 				}
 			}
@@ -174,11 +178,11 @@ public class ViterbiTagger {
 				int count = tagCount.getValue();
 
 				if (this.trigramParameters.containsKey(predecessors)) {
-					Map<String, Double> map = this.trigramParameters.get(predecessors);
-					map.put(tag, count / sumOfOccurences);
+					Map<String, BigDecimal> map = this.trigramParameters.get(predecessors);
+					map.put(tag, new BigDecimal(count).divide(new  BigDecimal(sumOfOccurences), MathContext.DECIMAL128));
 				} else {
-					Map<String, Double> map = new HashMap<>();
-					map.put(tag, count / sumOfOccurences);
+					Map<String, BigDecimal> map = new HashMap<>();
+					map.put(tag, new  BigDecimal(count).divide(new BigDecimal(sumOfOccurences), MathContext.DECIMAL128));
 
 					this.trigramParameters.put(predecessors, map);
 				}
@@ -186,9 +190,9 @@ public class ViterbiTagger {
 		}
 
 		if (this.logger.isDebugEnabled()) {
-			for (Map.Entry<String, Map<String, Double>> tokenMap : this.emissionParameters.entrySet()) {
+			for (Map.Entry<String, Map<String, BigDecimal>> tokenMap : this.emissionParameters.entrySet()) {
 				String token = tokenMap.getKey();
-				for (Map.Entry<String, Double> tagMap : tokenMap.getValue().entrySet()) {
+				for (Map.Entry<String, BigDecimal> tagMap : tokenMap.getValue().entrySet()) {
 					this.logger.debug("Token {} appears as {} with probability of {}", token, tagMap.getKey(),
 							tagMap.getValue());
 				}
@@ -196,16 +200,11 @@ public class ViterbiTagger {
 		}
 
 		if (this.logger.isDebugEnabled()) {
-			for (Map.Entry<String, Map<String, Double>> tokenMap : this.trigramParameters.entrySet()) {
+			for (Map.Entry<String, Map<String, BigDecimal>> tokenMap : this.trigramParameters.entrySet()) {
 				String tag = tokenMap.getKey();
-				double t = 0;
-				for (Map.Entry<String, Double> tagMap : tokenMap.getValue().entrySet()) {
+				for (Map.Entry<String, BigDecimal> tagMap : tokenMap.getValue().entrySet()) {
 					this.logger.debug("Tag {} appears after {} with probability of {}", tagMap.getKey(), tag,
 							tagMap.getValue());
-					t += tagMap.getValue();
-				}
-				if (t != 1) {
-					throw new RuntimeException(tag);
 				}
 			}
 		}
@@ -218,24 +217,25 @@ public class ViterbiTagger {
 	public void getTagList(String sentence) throws IOException {
 		Tokenizer tok = new Tokenizer(sentence);
 		String[] tokens = tok.tokenize();
-
-		double[][][] probabilities = new double[tokens.length][this.tags.length][this.tags.length];
+		
+		BigDecimal[][][] probabilities = new BigDecimal[tokens.length][this.tags.length][this.tags.length];
 		int[][][] backpointer = new int[tokens.length][this.tags.length][this.tags.length];
 
 		for (int k = 0; k < tokens.length; k++) {
+			System.err.println(k);
 			for (int u = 0; u < this.tags.length; u++) {
 				for (int v = 0; v < this.tags.length; v++) {
 					for (int w = 0; w < this.tags.length; w++) {
-						double pik_1wu = k == 0 ? 1 : probabilities[k - 1][w][u];
+						BigDecimal pik_1wu = k == 0 ? new BigDecimal(1) : probabilities[k - 1][w][u];
 						
-						double e = 1;
+						BigDecimal e = new BigDecimal(0);
 						if (this.emissionParameters.containsKey(tokens[k])) {
 							if (this.emissionParameters.get(tokens[k]).containsKey(tags[v])) {
 								e = this.emissionParameters.get(tokens[k]).get(tags[v]);
 							}
 						}
 						
-						double q = 0;
+						BigDecimal q = new BigDecimal(0);
 						if (k == 0) {
 							if (this.trigramParameters.get("§#§").containsKey(tags[v])) {
 								q = this.trigramParameters.get("§#§").get(tags[v]);
@@ -254,9 +254,9 @@ public class ViterbiTagger {
 							}
 						}
 
-						double prob = pik_1wu * q * e;
-
-						if (prob > probabilities[k][w][u]) {
+						BigDecimal prob = pik_1wu.multiply(q).multiply(e);
+						
+						if (probabilities[k][w][u] == null || prob.compareTo(probabilities[k][w][u]) == 1) {
 							probabilities[k][w][u] = prob;
 							backpointer[k][u][v] = w;
 						}
@@ -267,18 +267,21 @@ public class ViterbiTagger {
 		
 		int[] resultIDs = new int[tokens.length];
 		
-		double maxStopProb = 0;
+		BigDecimal maxStopProb = new BigDecimal(0);
 		int n = tokens.length - 1;
+		logger.debug(this.tags.length);
 		for (int u = 0; u < this.tags.length; u++) {
 			for (int v = 0; v < this.tags.length; v++) {
-				double q = 0;
+				BigDecimal q = new BigDecimal(0);
 				if (this.trigramParameters.containsKey(tags[u] + "#" + tags[v])) {
 					if (this.trigramParameters.get(tags[u] + "#" + tags[v]).containsKey("STOP")) {
 						q = this.trigramParameters.get(tags[u] + "#" + tags[v]).get("STOP");
+						this.logger.debug("Probability of {}#{}#STOP is {}", tags[u], tags[v], q);
 					}
 				}
-				double pi = probabilities[n][u][v] * q;
-				if (pi > maxStopProb) {
+				BigDecimal pi = probabilities[n][u][v].multiply(q);
+				if (pi.compareTo(maxStopProb) == 1) {
+					this.logger.debug("New highest value: {} by {}#{}", pi, tags[u], tags[v]);
 					maxStopProb = pi;
 					resultIDs[n] = v;
 					resultIDs[n-1] = u;
@@ -303,6 +306,6 @@ public class ViterbiTagger {
 		ViterbiTagger v = new ViterbiTagger();
 		v.learnCorpus("data/brown");
 
-		v.getTagList("I went to see the movie");
+		v.getTagList("At the end of the algorithm, we unravel the backpointers to find the highest probability sequence, and then return this sequence");
 	}
 }

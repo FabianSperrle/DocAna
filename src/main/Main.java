@@ -17,7 +17,7 @@ public class Main {
 
 	public static void main(String[] args) throws IOException{
 		//we have truncated the data file for easier upload in ilias, as there is a 40 MB size limit
-		String filePath = "data/docAnaTextSample.rtf";
+		String filePath = "data/reviews.rtf";
 		Reader reader = new Reader(filePath);
 		
 		// Read the input and clean the data
