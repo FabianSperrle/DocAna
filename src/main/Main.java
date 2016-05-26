@@ -45,8 +45,7 @@ public class Main {
 				builders[2].append(review.getText());
 			}
 		}
-		ViterbiTagger v = new ViterbiTagger();
-		v.learnCorpus("data/brown");
+		ViterbiTagger v = new ViterbiTagger("data/brown");
 		// Iterator with respective file names
 		Iterator<String> movies = Arrays.asList("Harry", "X-Men", "Sherlock").iterator();
 		
@@ -62,7 +61,6 @@ public class Main {
 				String[] pos = new String[tokens.length];
 				for (int i = 0; i < tokens.length; i++) {
 					stems[i] = stemmer.stem(tokens[i]);
-					pos[i] = v.getTagListSimple(stems[i]);
 				}
 				ArrayList<String> NN =new ArrayList<String>();
 				ArrayList<String> AP =new ArrayList<String>();
