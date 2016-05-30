@@ -1,3 +1,5 @@
 /target/
 /dictionary/*
 /data/reviews.rtf
+.idea/
+DocumentAnalysisI.iml
