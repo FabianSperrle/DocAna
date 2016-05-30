@@ -1,6 +1,7 @@
 package pos.brill;
 
 import jdk.nashorn.internal.objects.NativeArray;
+import tokenizer.Tokenizer;
 
 import java.io.*;
 import java.util.HashMap;
@@ -38,7 +39,10 @@ public class BrillTagger {
         this("data/brill/lexicon.txt", "data/brill/rules.txt");
     }
 
-    public String[] tag(String[] tokens) {
+    public String[] tag(String sentence) throws IOException {
+        Tokenizer tok = new Tokenizer(sentence);
+        String[] tokens = tok.tokenize();
+
         String[] tags = new String[tokens.length];
         for (int i = 0; i < tags.length; i++) {
             String token = tokens[i];
@@ -49,7 +53,6 @@ public class BrillTagger {
                 if (Character.isUpperCase(token.charAt(0))) {
                     tags[i] = "NN";
                 }
-
             }
         }
         return tags;

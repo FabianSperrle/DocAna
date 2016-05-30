@@ -23,10 +23,10 @@ public class Rule {
             this.predicate = new Predicate(elems[2], elems[3], elems[4]);
     }
 
-    public void apply(String[] sentence, int pos) {
-        if (sentence[pos].equals(tag1)) {
-            if (this.predicate.evaluate(sentence, pos)) {
-                sentence[pos] = tag2;
+    public void apply(String[] tags, String[] tokens, int pos) {
+        if (tags[pos].equals(tag1)) {
+            if (this.predicate.evaluate(tags, tokens, pos)) {
+                tags[pos] = tag2;
             }
         }
     }
