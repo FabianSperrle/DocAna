@@ -163,7 +163,6 @@ public class ViterbiTagger {
         }
         this.tags = countTokensPerTag.keySet().toArray(new String[0]);
         Arrays.sort(this.tags);
-        this.logger.debug(Arrays.toString(this.tags));
     }
 
     private void updateMap(Map<String, Map<String, Integer>> largeMap, String tag, String token) {
@@ -185,19 +184,32 @@ public class ViterbiTagger {
     public String[] getTagList(String sentence) throws IOException {
         Tokenizer tok = new Tokenizer(sentence);
         String[] tokens = tok.tokenize();
+        for (int i = 0; i < tokens.length; i++) {
+            tokens[i] = tokens[i].toLowerCase();
+        }
 
         double[][][] pi = new double[tokens.length][this.tags.length][this.tags.length];
         int[][][] backpointer = new int[tokens.length][this.tags.length][this.tags.length];
 
         for (int k = 0; k < tokens.length; k++) {
             for (int u = 0; u < this.tags.length; u++) {
-                for (int v = 0; v < this.tags.length; v++) {
-                    for (int w = 0; w < this.tags.length; w++) {
-                        double pik_1wu = k == 0 ? 1 : pi[k - 1][w][u];
+                for (int w = 0; w < this.tags.length; w++) {
+                    pi[k][u][w] = 0;
+                    backpointer[k][u][w] = 0;
+                }
+            }
+        }
 
-                        if (pik_1wu == 0)
-                            continue;
+        for (int k = 0; k < tokens.length; k++) {
+            for (int u = 0; u < this.tags.length; u++) {
+                for (int w = 0; w < this.tags.length; w++) {
 
+                    double pik_1wu = k == 0 ? 1 : pi[k - 1][w][u];
+
+                    if (pik_1wu == 0)
+                        continue;
+
+                    for (int v = 0; v < this.tags.length; v++) {
                         double e = 0;
                         if (this.emissionParameters.containsKey(tokens[k])) {
                             if (this.emissionParameters.get(tokens[k]).containsKey(tags[v])) {
@@ -243,7 +255,6 @@ public class ViterbiTagger {
 
         double maxStopProb = 0;
         int n = tokens.length - 1;
-        logger.debug(this.tags.length);
         for (int u = 0; u < this.tags.length; u++) {
             for (int v = 0; v < this.tags.length; v++) {
                 double q = 0;
@@ -274,12 +285,5 @@ public class ViterbiTagger {
         this.logger.debug(Arrays.toString(result));
 
         return result;
-    }
-
-    public static void main(String[] args) throws IOException {
-        ViterbiTagger v = new ViterbiTagger("data/brown");
-        v.learnCorpus();
-
-        v.getTagList("I am going to the cinema");
     }
 }
