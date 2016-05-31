@@ -40,13 +40,17 @@ public class BrillTagger {
     }
 
     public BrillTagger() throws IOException {
-        this("data/brill/lex.txt", "data/brill/endlex.txt", "data/brill/rulefile.txt");
+        this("data/brill/lex.txt", "data/brill/endlex.txt", "data/brill/rules.txt");
     }
+
 
     public String[] tag(String sentence) throws IOException {
         Tokenizer tok = new Tokenizer(sentence);
         String[] tokens = tok.tokenize();
+        return this.tag(tokens);
+    }
 
+    public String[] tag(String[] tokens) throws IOException {
         String[] tags = new String[tokens.length];
         for (int i = 0; i < tags.length; i++) {
             String token = tokens[i];
@@ -75,6 +79,30 @@ public class BrillTagger {
         return tags;
     }
 
+    public String[] tag(String[] tokens, Rule rule) throws IOException {
+        String[] tags = new String[tokens.length];
+        for (int i = 0; i < tags.length; i++) {
+            String token = tokens[i];
+            if (this.lexicon.containsKey(token)) {
+                tags[i] = this.lexicon.get(token);
+            }
+            else {
+                if (Character.isUpperCase(token.charAt(0))) {
+                    tags[i] = "NN";
+                } else {
+                    String endChars = token.substring(Math.max(0, token.length() - 3));
+                    if (this.endCharLexicon.containsKey(endChars)) {
+                        tags[i] = this.endCharLexicon.get(endChars);
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < tags.length; i++) {
+                rule.apply(tags, tokens, i);
+        }
+        return tags;
+    }
     public static void main(String[] args) {
         try {
             BrillTagger t = new BrillTagger();
