@@ -19,6 +19,8 @@ public class Predicate {
             switch (this.name) {
                 case "PREVTAG":
                     return this.prevtag(tags, pos);
+                case "PREV2TAG":
+                    return this.prev2tag(tags, pos);
                 case "PREV1OR2OR3TAG":
                     return this.prev1or2or3tag(tags, pos);
                 case "PREV1OR2TAG":
@@ -31,6 +33,8 @@ public class Predicate {
                     return this.prev1or2word(tokens, pos);
                 case "WDNEXTTAG":
                     return this.wdnexttag(tags, tokens, pos);
+                case "WDPREVTAG":
+                    return this.wdprevtag(tags, tokens, pos);
                 case "SURROUNDTAG":
                     return this.surroundtag(tags, pos);
                 case "PREVBIGRAM":
@@ -53,25 +57,28 @@ public class Predicate {
         }
     }
 
-    @org.jetbrains.annotations.Contract(pure = true)
-    private boolean prevtag(String[] sentence, int pos) {
-        return sentence[pos - 1].equals(this.param1);
+    private boolean prevtag(String[] tags, int pos) {
+        return tags[pos - 1].equals(this.param1);
     }
 
-    private boolean prev1or2or3tag(String[] sentence, int pos) {
-        return sentence[pos - 1].equals(this.param1) ||
-                sentence[pos - 2].equals(this.param1) ||
-                sentence[pos - 3].equals(this.param1);
+    private boolean prev2tag(String[] tags, int pos) {
+        return tags[pos - 2].equals(this.param1);
     }
 
-    private boolean prev1or2tag(String[] sentence, int pos) {
-        return sentence[pos - 1].equals(this.param1) ||
-                sentence[pos - 2].equals(this.param1);
+    private boolean prev1or2or3tag(String[] tags, int pos) {
+        return tags[pos - 1].equals(this.param1) ||
+                tags[pos - 2].equals(this.param1) ||
+                tags[pos - 3].equals(this.param1);
     }
 
-    private boolean next1or2tag(String[] sentence, int pos) {
-        return sentence[pos + 1].equals(this.param1) ||
-                sentence[pos + 2].equals(this.param1);
+    private boolean prev1or2tag(String[] tags, int pos) {
+        return tags[pos - 1].equals(this.param1) ||
+                tags[pos - 2].equals(this.param1);
+    }
+
+    private boolean next1or2tag(String[] tags, int pos) {
+        return tags[pos + 1].equals(this.param1) ||
+                tags[pos + 2].equals(this.param1);
     }
 
     private boolean wdand2aft(String[] tokens, int pos) {
@@ -85,10 +92,11 @@ public class Predicate {
     }
 
     private boolean wdnexttag(String[] tags, String[] tokens, int pos) {
-        if (tokens[pos].equals(this.param1)) {
-            return tags[pos + 1].equals(this.param2);
-        }
-        return false;
+        return tokens[pos].equals(this.param1) && tags[pos + 1].equals(this.param2);
+    }
+
+    private boolean wdprevtag(String[] tags, String[] tokens, int pos) {
+        return tokens[pos].equals(this.param1) && tags[pos - 1].equals(this.param2);
     }
 
     private boolean surroundtag(String[] tags, int pos) {
@@ -108,10 +116,7 @@ public class Predicate {
     }
 
     private boolean wdand2tagaft(String[] tags, String[] tokens, int pos) {
-        if (tokens[pos].equals(this.param1)) {
-            return tags[pos + 2].equals(this.param2);
-        }
-        return false;
+        return tokens[pos].equals(this.param1) && tags[pos + 2].equals(this.param2);
     }
 
     private boolean rbigram(String[] tokens, int pos) {
