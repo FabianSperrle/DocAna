@@ -1,23 +1,20 @@
 package pos.brill;
 
-import jdk.nashorn.internal.objects.NativeArray;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import tokenizer.Tokenizer;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-/**
- * Created by fabian on 27.05.2016.
- */
 public class BrillTagger {
     private Map<String,String> lexicon;
+    private Map<String,String> endCharLexicon;
     private List<Rule> rules;
 
-    public BrillTagger(String lexicon, String rules) throws IOException {
+    public BrillTagger(String lexicon, String endlex, String rules) throws IOException {
         this.lexicon = new HashMap<>();
+        this.endCharLexicon = new HashMap<>();
         this.rules = new LinkedList<>();
 
         BufferedReader lexiconReader = new BufferedReader(new FileReader(new File(lexicon)));
@@ -25,6 +22,13 @@ public class BrillTagger {
         while ((line = lexiconReader.readLine()) != null) {
             String[] elems = line.split("\\s");
             this.lexicon.put(elems[0], elems[1]);
+        }
+
+        BufferedReader endLexReader = new BufferedReader(new FileReader(new File(endlex)));
+        line = null;
+        while ((line = endLexReader.readLine()) != null) {
+            String[] elems = line.split("\\s");
+            this.endCharLexicon.put(elems[0], elems[1]);
         }
 
         BufferedReader ruleReader = new BufferedReader(new FileReader(new File(rules)));
@@ -36,13 +40,17 @@ public class BrillTagger {
     }
 
     public BrillTagger() throws IOException {
-        this("data/brill/lexicon.txt", "data/brill/rules.txt");
+        this("data/brill/lex.txt", "data/brill/endlex.txt", "data/brill/rules.txt");
     }
+
 
     public String[] tag(String sentence) throws IOException {
         Tokenizer tok = new Tokenizer(sentence);
         String[] tokens = tok.tokenize();
+        return this.tag(tokens);
+    }
 
+    public String[] tag(String[] tokens) throws IOException {
         String[] tags = new String[tokens.length];
         for (int i = 0; i < tags.length; i++) {
             String token = tokens[i];
@@ -52,9 +60,55 @@ public class BrillTagger {
             else {
                 if (Character.isUpperCase(token.charAt(0))) {
                     tags[i] = "NN";
+                } else {
+                    String endChars = token.substring(Math.max(0, token.length() - 3));
+                    if (this.endCharLexicon.containsKey(endChars)) {
+                        tags[i] = this.endCharLexicon.get(endChars);
+                    }
                 }
             }
         }
+
+        System.out.println("tags = " + Arrays.toString(tags));
+        for (int i = 0; i < tags.length; i++) {
+            for (Rule rule : rules) {
+                rule.apply(tags, tokens, i);
+            }
+        }
+        System.out.println("tags = " + Arrays.toString(tags));
         return tags;
+    }
+
+    public String[] tag(String[] tokens, Rule rule) throws IOException {
+        String[] tags = new String[tokens.length];
+        for (int i = 0; i < tags.length; i++) {
+            String token = tokens[i];
+            if (this.lexicon.containsKey(token)) {
+                tags[i] = this.lexicon.get(token);
+            }
+            else {
+                if (Character.isUpperCase(token.charAt(0))) {
+                    tags[i] = "NN";
+                } else {
+                    String endChars = token.substring(Math.max(0, token.length() - 3));
+                    if (this.endCharLexicon.containsKey(endChars)) {
+                        tags[i] = this.endCharLexicon.get(endChars);
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < tags.length; i++) {
+                rule.apply(tags, tokens, i);
+        }
+        return tags;
+    }
+    public static void main(String[] args) {
+        try {
+            BrillTagger t = new BrillTagger();
+            String[] tags = t.tag("Hey, how are you doing.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

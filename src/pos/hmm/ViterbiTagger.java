@@ -1,4 +1,4 @@
-package pos;
+package pos.hmm;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import pos.MapUpdaterHelper;
 import tokenizer.Tokenizer;
 
 public class ViterbiTagger {
@@ -89,7 +90,7 @@ public class ViterbiTagger {
                     }
 
                     // Update the counter for each token/tag pair
-                    this.updateMap(countTokensPerTag, tag, token);
+                    MapUpdaterHelper.updateMap(countTokensPerTag, tag, token);
 
                     // Update taglist for the sentence
                     tagList.add(tag);
@@ -107,7 +108,7 @@ public class ViterbiTagger {
                     String tag = tagList.get(i);
                     String predecessors = tagList.get(i - 2) + "#" + tagList.get(i - 1);
                     // Check if we have seen that predecessor pair before
-                    this.updateMap(ngramCount, predecessors, tag);
+                    MapUpdaterHelper.updateMap(ngramCount, predecessors, tag);
                 }
 
                 line = reader.readLine();
@@ -119,9 +120,9 @@ public class ViterbiTagger {
         for (Map.Entry<String, Map<String, Integer>> entry : countTokensPerTag.entrySet()) {
             String tag = entry.getKey();
             Map<String, Integer> tokenCountMap = entry.getValue();
-            double sumOfOccurences = 0;
+            double sumOfOccurrences = 0;
             for (Integer count : tokenCountMap.values()) {
-                sumOfOccurences += count;
+                sumOfOccurrences += count;
             }
             for (Map.Entry<String, Integer> tokenCount : tokenCountMap.entrySet()) {
                 String token = tokenCount.getKey();
@@ -129,10 +130,10 @@ public class ViterbiTagger {
 
                 if (this.emissionParameters.containsKey(token)) {
                     Map<String, Double> map = this.emissionParameters.get(token);
-                    map.put(tag, count / sumOfOccurences);
+                    map.put(tag, count / sumOfOccurrences);
                 } else {
                     Map<String, Double> map = new HashMap<>();
-                    map.put(tag, count / sumOfOccurences);
+                    map.put(tag, count / sumOfOccurrences);
                     this.emissionParameters.put(token, map);
                 }
             }
@@ -163,22 +164,6 @@ public class ViterbiTagger {
         }
         this.tags = countTokensPerTag.keySet().toArray(new String[0]);
         Arrays.sort(this.tags);
-    }
-
-    private void updateMap(Map<String, Map<String, Integer>> largeMap, String tag, String token) {
-        if (largeMap.containsKey(tag)) {
-            Map<String, Integer> map = largeMap.get(tag);
-            if (map.containsKey(token)) {
-                map.put(token, map.get(token) + 1);
-
-            } else {
-                map.put(token, 1);
-            }
-        } else {
-            Map<String, Integer> map = new HashMap<>();
-            map.put(token, 1);
-            largeMap.put(tag, map);
-        }
     }
 
     public String[] getTagList(String sentence) throws IOException {

@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import pos.ViterbiTagger;
+import pos.hmm.ViterbiTagger;
 import reader.Reader;
 import reader.Review;
 import stemmer.KehlbeckSperrleStemmer;

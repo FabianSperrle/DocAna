@@ -24,10 +24,15 @@ public class Rule {
     }
 
     public void apply(String[] tags, String[] tokens, int pos) {
-        if (tags[pos].equals(tag1)) {
+        if (tags[pos] != null && tags[pos].equals(tag1)) {
             if (this.predicate.evaluate(tags, tokens, pos)) {
                 tags[pos] = tag2;
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return this.tag1 + " " + this.tag2 + " " + this.predicate.toString();
     }
 }
