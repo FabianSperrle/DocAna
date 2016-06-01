@@ -253,7 +253,9 @@ public class ViterbiTagger {
                 if (prob > maxStopProb) {
                     maxStopProb = prob;
                     resultIDs[n] = v;
-                    resultIDs[n - 1] = u;
+                    if (resultIDs.length > 1) {
+                        resultIDs[n - 1] = u;
+                    }
                 }
             }
         }
