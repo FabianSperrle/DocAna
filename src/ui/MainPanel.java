@@ -103,6 +103,8 @@ public class MainPanel extends JFrame{
 	    resultSentences = null;
 	    resultTokens = null;
 	    resultStems = null;
+	    resultVit = null;
+	    resultBrill = null;
 	    
 	    txtArea.getDocument().addDocumentListener(new DocumentListener() {
 	    	  public void changedUpdate(DocumentEvent e) {
@@ -118,6 +120,11 @@ public class MainPanel extends JFrame{
 	    		     if (txtArea.getText().equals("")){
 	    		    	 for(Component component : getComponents(panel2)) {
 		    		 	        component.setEnabled(false);
+		    		 	        sentences.setText("");
+		    		 	        tokens.setText("");
+		    		 	        stems.setText("");
+		    		 	        posbrill.setText("");
+		    		 	        posvit.setText("");
 		    		 	    }
 	    		     }
 	    		     else {
@@ -182,9 +189,6 @@ public class MainPanel extends JFrame{
 	    		} catch (IOException e2) {
 	    			e2.printStackTrace();
 	    		}
-	    		 JOptionPane.showMessageDialog(MainPanel.this, "Extracted the sentences!",
-                                               "Done!",
-                                               JOptionPane.OK_OPTION);
 	    		 sentences.setText(Arrays.toString(resultSentences));
 	    		 panel3.repaint();
 	    		 panel3.revalidate();
@@ -204,9 +208,6 @@ public class MainPanel extends JFrame{
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-	    		 JOptionPane.showMessageDialog(MainPanel.this, "Extracted the tokens!",
-                                               "Done!",
-                                               JOptionPane.OK_OPTION);
 	    		 tokens.setText(Arrays.toString(resultTokens));
 	    		 
 	    		 panel3.repaint();
@@ -235,9 +236,6 @@ public class MainPanel extends JFrame{
 					for (int i = 0; i < resultTokens.length; i++) {
 						resultStems[i] = stemmer.stem(resultTokens[i]);
 					}
-	    		 JOptionPane.showMessageDialog(MainPanel.this, "Extracted the stems!",
-                                               "Done!",
-                                               JOptionPane.OK_OPTION);
 	    		 stems.setText(Arrays.toString(resultStems));
 	    		 panel3.repaint();
 	    		 panel3.revalidate();
@@ -258,9 +256,6 @@ public class MainPanel extends JFrame{
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
-	    		 JOptionPane.showMessageDialog(MainPanel.this, "Extracted the Viterbi Tags!",
-                                               "Done!",
-                                               JOptionPane.OK_OPTION);
 	    		 posvit.setText(Arrays.toString(resultVit));
 	    		 panel3.repaint();
 	    		 panel3.revalidate();
@@ -281,9 +276,6 @@ public class MainPanel extends JFrame{
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
-	    		 JOptionPane.showMessageDialog(MainPanel.this, "Extracted the Brill Tags!",
-                                               "Done!",
-                                               JOptionPane.OK_OPTION);
 	    		 posbrill.setText(Arrays.toString(resultBrill));
 	    		 panel3.repaint();
 	    		 panel3.revalidate();

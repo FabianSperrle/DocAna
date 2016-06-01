@@ -13,7 +13,7 @@ public class SplitSentences {
 	
 	public String[] tokenize() throws IOException {
 
-		String[] r = s.split("(\\.\\?|\\!) (?=[A-Z])"); 
+		String[] r = s.split("(\\.|\\?|\\!) (?=[A-Z])"); 
 		r[r.length-1] = r[r.length-1].substring(0, r[r.length-1].length()-1);
 		return r;
 	}	
