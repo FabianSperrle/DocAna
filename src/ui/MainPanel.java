@@ -28,7 +28,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
+import org.hamcrest.core.IsEqual;
+
+import pos.brill.BrillTagger;
+import pos.hmm.ViterbiTagger;
 import stemmer.KehlbeckSperrleStemmer;
 import stemmer.Stemmer;
 import tokenizer.SplitSentences;
@@ -47,6 +53,13 @@ public class MainPanel extends JFrame{
 	private String[] resultSentences;
 	private String[] resultTokens;
 	private String[] resultStems;
+	private String[] resultVit;
+	private String[] resultBrill;
+	JTextArea sentences ;
+	JTextArea tokens ;
+	JTextArea stems;
+	JTextArea posbrill;
+	JTextArea posvit;
 	
 	
 	public MainPanel(){
@@ -74,17 +87,47 @@ public class MainPanel extends JFrame{
 	    splitPaneV.setLeftComponent( splitPaneH );
 	    splitPaneV.setRightComponent( panel3 );
 	    
-	    for(Component component : getComponents(panel3)) {
-	        component.setEnabled(false);
-	    }
+	    //for(Component component : getComponents(panel3)) {
+	        //component.setEnabled(false);
+	    //}
+	
 	    for(Component component : getComponents(panel2)) {
-	        component.setEnabled(false);
-	    }
+ 	        component.setEnabled(false);
+ 	    }
+	    sentences.setEditable(false);
+	    tokens.setEditable(false);
+	    stems.setEditable(false);
+	    posbrill.setEditable(false);
+	    posvit.setEditable(false);
 	    textInput = null;
 	    resultSentences = null;
 	    resultTokens = null;
 	    resultStems = null;
 	    
+	    txtArea.getDocument().addDocumentListener(new DocumentListener() {
+	    	  public void changedUpdate(DocumentEvent e) {
+	    	    changed();
+	    	  }
+	    	  public void removeUpdate(DocumentEvent e) {
+	    	    changed();
+	    	  }
+	    	  public void insertUpdate(DocumentEvent e) {
+	    	    changed();
+	    	  }
+	    	  public void changed() {
+	    		     if (txtArea.getText().equals("")){
+	    		    	 for(Component component : getComponents(panel2)) {
+		    		 	        component.setEnabled(false);
+		    		 	    }
+	    		     }
+	    		     else {
+	    		    	for(Component component : getComponents(panel2)) {
+	    		 	        component.setEnabled(true);
+	    		 	    }
+	    		    }
+
+	    		  }
+	    		});
 	}
 	
 	public void createPanel1(){
@@ -132,7 +175,7 @@ public class MainPanel extends JFrame{
 	    sentencesButton.addActionListener(new ActionListener() {
 	        @Override
 	        public void actionPerformed( ActionEvent e ) {
-	        	SplitSentences sentence = new SplitSentences( textInput.toString() );
+	        	SplitSentences sentence = new SplitSentences( txtArea.getText() );
 	    		try {
 	    			resultSentences = sentence.tokenize();
 	    			//System.out.println(Arrays.toString(resultSentences));
@@ -142,13 +185,6 @@ public class MainPanel extends JFrame{
 	    		 JOptionPane.showMessageDialog(MainPanel.this, "Extracted the sentences!",
                                                "Done!",
                                                JOptionPane.OK_OPTION);
-	    		 panel3.add( new JLabel( "Sentence Splitter:" ));
-	    		 JTextArea sentences = new JTextArea();
-	    		 panel3.add( sentences );
-	    		 JScrollPane sentencesArea = new JScrollPane( sentences );
-	    		 sentencesArea.setAutoscrolls( true );
-	    		 sentencesArea.setPreferredSize( new Dimension( 800,300) );
-	    		 panel3.add(sentencesArea);
 	    		 sentences.setText(Arrays.toString(resultSentences));
 	    		 panel3.repaint();
 	    		 panel3.revalidate();
@@ -160,7 +196,8 @@ public class MainPanel extends JFrame{
 	    tokensButton.addActionListener(new ActionListener() {
 	        @Override
 	        public void actionPerformed( ActionEvent e ) {
-	        	 Tokenizer tokenizer = new Tokenizer(textInput.toString());
+	        	
+	        	 Tokenizer tokenizer = new Tokenizer(txtArea.getText());
 	        	 try {
 					resultTokens = tokenizer.tokenize();
 				} catch (IOException e1) {
@@ -170,14 +207,8 @@ public class MainPanel extends JFrame{
 	    		 JOptionPane.showMessageDialog(MainPanel.this, "Extracted the tokens!",
                                                "Done!",
                                                JOptionPane.OK_OPTION);
-	    		 panel3.add( new JLabel( "Tokenizer:" ));
-	    		 JTextArea tokens = new JTextArea();
-	    		 panel3.add( tokens );
-	    		 JScrollPane tokensArea = new JScrollPane( tokens );
-	    		 tokensArea.setAutoscrolls( true );
-	    		 tokensArea.setPreferredSize( new Dimension( 800,300) );
-	    		 panel3.add(tokensArea);
 	    		 tokens.setText(Arrays.toString(resultTokens));
+	    		 
 	    		 panel3.repaint();
 	    		 panel3.revalidate();
 	        }
@@ -188,9 +219,10 @@ public class MainPanel extends JFrame{
 	    stemsButton.addActionListener(new ActionListener() {
 	        @Override
 	        public void actionPerformed( ActionEvent e ) {
+	        	
 	        	 Stemmer stemmer = new KehlbeckSperrleStemmer();
 	        	 if (resultTokens == null) {
-	        		 Tokenizer tokenizer = new Tokenizer(textInput.toString());
+	        		 Tokenizer tokenizer = new Tokenizer(txtArea.getText());
 		        	 try {
 						resultTokens = tokenizer.tokenize();
 					} catch (IOException e1) {
@@ -206,13 +238,6 @@ public class MainPanel extends JFrame{
 	    		 JOptionPane.showMessageDialog(MainPanel.this, "Extracted the stems!",
                                                "Done!",
                                                JOptionPane.OK_OPTION);
-	    		 panel3.add( new JLabel( "Stemmer:" ));
-	    		 JTextArea stems = new JTextArea();
-	    		 panel3.add( stems );
-	    		 JScrollPane stemsArea = new JScrollPane(stems);
-	    		 txtArea.setAutoscrolls(true);
-	    		 stemsArea.setPreferredSize(new Dimension( 800,300));
-	    		 panel3.add(stemsArea);
 	    		 stems.setText(Arrays.toString(resultStems));
 	    		 panel3.repaint();
 	    		 panel3.revalidate();
@@ -221,9 +246,49 @@ public class MainPanel extends JFrame{
 	    panel2.add( stemsButton );
 	    
 	    JButton posProb =  new JButton( "Extract POS probalistic" );
+	    posProb.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed( ActionEvent e ) {
+	        	resultVit = new String[txtArea.getText().length()];
+	        	ViterbiTagger vit;
+				try {
+					vit = new ViterbiTagger("data/brown");
+					resultVit = vit.getTagList(txtArea.getText());
+				} catch (IOException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+	    		 JOptionPane.showMessageDialog(MainPanel.this, "Extracted the Viterbi Tags!",
+                                               "Done!",
+                                               JOptionPane.OK_OPTION);
+	    		 posvit.setText(Arrays.toString(resultVit));
+	    		 panel3.repaint();
+	    		 panel3.revalidate();
+	        }
+	    });
 	    panel2.add( posProb );
 	    
 	    JButton posRule =  new JButton( "Extract POS rule-based" );
+	    posRule.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed( ActionEvent e ) {
+	        	resultBrill = new String[txtArea.getText().length()];
+	        	BrillTagger br;
+				try {
+					br = new BrillTagger();
+					resultBrill = br.tag(txtArea.getText());
+				} catch (IOException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+	    		 JOptionPane.showMessageDialog(MainPanel.this, "Extracted the Brill Tags!",
+                                               "Done!",
+                                               JOptionPane.OK_OPTION);
+	    		 posbrill.setText(Arrays.toString(resultBrill));
+	    		 panel3.repaint();
+	    		 panel3.revalidate();
+	        }
+	    });
 	    panel2.add( posRule );
 	}
 
@@ -241,6 +306,46 @@ public class MainPanel extends JFrame{
 	    txtArea.setAutoscrolls(true);
 	    scrollFrameTxt.setPreferredSize(new Dimension( 800,300));
 	    panel3.add(scrollFrameTxt);
+	    
+		 panel3.add( new JLabel( "Sentence Splitter:" ));
+		 sentences = new JTextArea();
+		 panel3.add( sentences );
+		 JScrollPane sentencesArea = new JScrollPane( sentences );
+		 sentencesArea.setAutoscrolls( true );
+		 sentencesArea.setPreferredSize( new Dimension( 800,300) );
+		 panel3.add(sentencesArea);
+	    
+		 panel3.add( new JLabel( "Tokenizer:" ));
+		 tokens = new JTextArea();
+		 panel3.add( tokens );
+		 JScrollPane tokensArea = new JScrollPane( tokens );
+		 tokensArea.setAutoscrolls( true );
+		 tokensArea.setPreferredSize( new Dimension( 800,300) );
+		 panel3.add(tokensArea);
+	    
+		 panel3.add( new JLabel( "Stemmer:" ));
+		 stems = new JTextArea();
+		 panel3.add( stems );
+		 JScrollPane stemsArea = new JScrollPane(stems);
+		 stemsArea.setAutoscrolls(true);
+		 stemsArea.setPreferredSize(new Dimension( 800,300));
+		 panel3.add(stemsArea);
+		 
+		 panel3.add( new JLabel( "Viterbi Tagger:" ));
+		 posvit = new JTextArea();
+		 panel3.add( posvit );
+		 JScrollPane vitArea = new JScrollPane(posvit);
+		 vitArea.setAutoscrolls(true);
+		 vitArea.setPreferredSize(new Dimension( 800,300));
+		 panel3.add(vitArea);
+		 
+		 panel3.add( new JLabel( "Brill Tagger:" ));
+		 posbrill = new JTextArea();
+		 panel3.add( posbrill );
+		 JScrollPane brillArea = new JScrollPane(posbrill);
+		 brillArea.setAutoscrolls(true);
+		 brillArea.setPreferredSize(new Dimension( 800,300));
+		 panel3.add(brillArea);
 	}
 	
 	private Component[] getComponents(Component container) {
