@@ -53,7 +53,7 @@ public class Predicate {
         }
     }
 
-    @org.jetbrains.annotations.Contract(pure = true)
+    //@org.jetbrains.annotations.Contract(pure = true)
     private boolean prevtag(String[] sentence, int pos) {
         return sentence[pos - 1].equals(this.param1);
     }
