@@ -52,7 +52,7 @@ public class Tokenizer {
         // https://regex101.com/r/dM0yY9/4
         text = text.replaceAll("<.*?>", "");
         System.out.println("text = " + text);
-        Pattern stuff = Pattern.compile("(?:[a-zA-Z']+|(?<=[a-zA-Z])-(?=[a-zA-Z])|(?<=[a-zA-Z])&(?=[a-zA-Z]))+|(?:[-.\\p{Sc}]?\\d+(?:\\.\\d+)?)[%\\p{Sc}]?|[.,!?;():\"]+|--");
+        Pattern stuff = Pattern.compile("(?:(?<=[\"])(?:\\w+\\s){1,3}\\w+(?=[\"])|'\\d+|[a-zA-Z']+|(?<=[a-zA-Z])-(?=[a-zA-Z])|(?<=[a-zA-Z])&(?=[a-zA-Z]))+|(?:[-.\\p{Sc}]?\\d+(?:\\.\\d+)?)[%\\p{Sc}]?|[.,!?;():\"]+|--");
         Matcher matcher = stuff.matcher(text);
         List<String> tokens = new ArrayList<String>();
         while (matcher.find()) {
