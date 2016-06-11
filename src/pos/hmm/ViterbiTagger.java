@@ -1,5 +1,10 @@
 package pos.hmm;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pos.MapUpdaterHelper;
+import tokenizer.Tokenizer;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -7,18 +12,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import pos.MapUpdaterHelper;
-import tokenizer.Tokenizer;
 
 public class ViterbiTagger {
     private Logger logger = LogManager.getLogger(ViterbiTagger.class);
@@ -75,16 +70,25 @@ public class ViterbiTagger {
                         }
                         tag = results[results.length - 1];
                     }
+                    token = token.trim();
+                    tag = tag.trim();
+
 
                     // Simplify the tag to speed up the calculations
-                    if (tag.endsWith("-hl") || tag.endsWith("-tl") || tag.endsWith("-nc")) {
+                    if (tag.endsWith("-hl") || tag.endsWith("-nc")) {
+                        tag = tag.substring(0, tag.length() - 3);
+                    }
+                    if (tag.endsWith("-tl")) {
                         tag = tag.substring(0, tag.length() - 3);
                     }
 
+                    if (tag.startsWith("fw-")) {
+                        tag = tag.substring(3, tag.length());
+                    }
+
+
                     // Don't store ' '' and ` etc as they are not produced by our tokenizer
-                    if (tag.equals("\"") || tag.equals("'") || tag.equals("`") || tag.equals("``") || tag.equals("''")
-                            || tag.equals("(") || tag.equals(")") || tag.equals(".") || tag.equals(":")
-                            || tag.equals(";") || tag.equals(",") || tag.equals("--")) {
+                    if (tag.endsWith("*") || tag.equals("\"") || tag.equals("'") || tag.equals("`") || tag.equals("``") || tag.equals("''")) {
                         tokensWithTages.remove(tag);
                         continue;
                     }
@@ -164,11 +168,13 @@ public class ViterbiTagger {
         }
         this.tags = countTokensPerTag.keySet().toArray(new String[0]);
         Arrays.sort(this.tags);
+        System.out.println("Arrays.toString(this.tags) = " + Arrays.toString(this.tags));
+        System.out.println("this.tags.length = " + this.tags.length);
     }
 
     public String[] getTagList(String sentence) throws IOException {
-        Tokenizer tok = new Tokenizer(sentence);
-        String[] tokens = tok.tokenize();
+        Tokenizer tok = new Tokenizer();
+        String[] tokens = tok.tokenize(sentence);
         for (int i = 0; i < tokens.length; i++) {
             tokens[i] = tokens[i].toLowerCase();
         }
@@ -195,7 +201,7 @@ public class ViterbiTagger {
                         continue;
 
                     for (int v = 0; v < this.tags.length; v++) {
-                        double e = 0;
+                        double e = 0.0001;
                         if (this.emissionParameters.containsKey(tokens[k])) {
                             if (this.emissionParameters.get(tokens[k]).containsKey(tags[v])) {
                                 e = this.emissionParameters.get(tokens[k]).get(tags[v]);
@@ -204,7 +210,7 @@ public class ViterbiTagger {
                         if (e == 0)
                             continue;
 
-                        double q = 0;
+                        double q = 0.0001;
                         if (k == 0 && u == 0 && w == 0) {
                             if (this.trigramParameters.get("§#§").containsKey(tags[v])) {
                                 q = this.trigramParameters.get("§#§").get(tags[v]);
