@@ -1,4 +1,13 @@
 package main;
+
+import pos.hmm.ViterbiTagger;
+import reader.Reader;
+import reader.Review;
+import stemmer.KehlbeckSperrleStemmer;
+import stemmer.Stemmer;
+import tokenizer.SentenceSplitter;
+import tokenizer.Tokenizer;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -6,14 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
-import pos.hmm.ViterbiTagger;
-import reader.Reader;
-import reader.Review;
-import stemmer.KehlbeckSperrleStemmer;
-import stemmer.Stemmer;
-import tokenizer.SplitSentences;
-import tokenizer.Tokenizer;
 
 public class Main {
 
@@ -52,9 +53,9 @@ public class Main {
 		// Tokenize the reviews
 		for (StringBuilder stringBuilder : builders) {
 			String collectedReviews = stringBuilder.toString();
-			Tokenizer tokenizer = new Tokenizer(collectedReviews);
+			Tokenizer tokenizer = new Tokenizer();
 			try {
-				String[] tokens = tokenizer.tokenize();
+				String[] tokens = tokenizer.tokenize(collectedReviews);
 				
 				Stemmer stemmer = new KehlbeckSperrleStemmer();
 				String[] stems = new String[tokens.length];
@@ -96,10 +97,10 @@ public class Main {
 		}
 		
 		// Demo the sentence splitter
-		SplitSentences sentence = new SplitSentences(reviews.get(1).getText());
+		SentenceSplitter sentence = new SentenceSplitter();
 		
 		try {
-			String[] result = sentence.tokenize();
+			String[] result = sentence.split(reviews.get(1).getText());
 			//System.out.println(Arrays.toString(result));
 		} catch (IOException e) {
 			e.printStackTrace();
