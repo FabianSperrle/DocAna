@@ -70,8 +70,8 @@ public class Tokenizer {
                     }
                 }
 
-                if (tokens.get(i).equals("e") && tokens.get(i + 1).equals(".") && tokens.get(i + 2).equals("g") && tokens.get(i + 3).startsWith(".")) {
-                    token = "e.g.";
+                if (tokens.get(i + 1).equals(".") && tokens.get(i + 3).startsWith(".")) {
+                    token = tokens.get(i) + "." + tokens.get(i + 2) + ".";
                     tokens.remove(i + 1);
                     tokens.remove(i + 1);
                     tokens.remove(i + 1);
