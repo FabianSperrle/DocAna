@@ -1,51 +1,21 @@
 package stemmer.tests;
 
-import static org.junit.Assert.*;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import stemmer.KehlbeckSperrleStemmer;
 import stemmer.Stemmer;
 
+import static org.junit.Assert.assertEquals;
+
 public class KehlbeckSperrleStemmerTest extends KehlbeckSperrleStemmer {
 
 	private final Logger logger = LogManager.getLogger(KehlbeckSperrleStemmerTest.class);
 
 	@Test
-	public void measureZero() {
-		Stemmer stemmer = new KehlbeckSperrleStemmer();
-		String[] testWords = { "TO", "CNN" };
-
-		for (String token : testWords) {
-			assertEquals(token + " should have measure 0", 0, stemmer.getMeasure(token));
-		}
-	}
-
-	@Test
-	public void measureOne() {
-		Stemmer stemmer = new KehlbeckSperrleStemmer();
-		String[] testWords = { "or", "brick" };
-
-		for (String token : testWords) {
-			assertEquals(token + " should have measure 1", 1, stemmer.getMeasure(token));
-		}
-	}
-
-	@Test
-	public void measureTwo() {
-		Stemmer stemmer = new KehlbeckSperrleStemmer();
-		String[] testWords = { "eastern", "dogmas" };
-
-		for (String token : testWords) {
-			assertEquals(token + " should have measure 2", 2, stemmer.getMeasure(token));
-		}
-	}
-
-	@Test
 	public void stem() {
 		Stemmer stemmer = new KehlbeckSperrleStemmer();
-		Pair[] testWords = { new Pair("alienation", "alienat"), 
+		Pair[] testWords = {
 				new Pair("words", "word"),
 				new Pair("nation", "nation"), 
 				new Pair("bus", "bus"),
@@ -54,6 +24,12 @@ public class KehlbeckSperrleStemmerTest extends KehlbeckSperrleStemmer {
 				new Pair("beds", "bed"),
 				new Pair("running", "run"),
 				new Pair("skulls", "skull"),
+				new Pair("ties", "ties"),
+				new Pair("ponies", "poni"),
+				new Pair("computation", "comput"),
+				new Pair("computer", "comput"),
+				new Pair("compute", "comput"),
+				new Pair("computationally", "comput"),
 			};
 
 		for (Pair pair : testWords) {
