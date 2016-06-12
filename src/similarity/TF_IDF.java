@@ -33,11 +33,16 @@ public class TF_IDF {
      * @param texts The List of List of stems
      * @return A List of HashMaps with the counts for each stem
      */
-    private List<Map<String, Integer>> tf(List<List<String>> texts) {
-        return texts.stream()
+    private List<Map<String, Double>> tf(List<List<String>> texts) {
+        final List<Map<String, Double>> _raw = texts.stream()
                 .map(documentStems -> documentStems.stream()
-                        .collect(Collectors.toMap(stem -> stem, count -> 1, (c1, c2) -> c1 + 1)))
+                        .collect(Collectors.toMap(stem -> stem, count -> 1.0, (c1, c2) -> c1 + 1)))
                 .collect(Collectors.toList());
+
+        _raw.stream()
+                .forEach(m -> m.entrySet().stream().forEach(e -> e.setValue(Math.log(e.getValue()) + 1)));
+
+        return _raw;
     }
 
     /**
@@ -64,12 +69,12 @@ public class TF_IDF {
         for (String text : texts) {
             stems.add(Arrays.asList(this.stemmer.stem(this.tokenizer.tokenize(text))));
         }
-        final List<Map<String, Integer>> tf = tf(stems);
+        final List<Map<String, Double>> tf = tf(stems);
 
         double[][] tf_idf = new double[texts.size()][idf.size()];
         final LinkedList<Map.Entry<String, Double>> idfEntries = new LinkedList<>(idf.entrySet());
         for (int i = 0; i < tf.size(); i++) {
-            Map<String, Integer> tfMap = tf.get(i);
+            Map<String, Double> tfMap = tf.get(i);
             for (int j = 0; j < idfEntries.size(); j++) {
                 Map.Entry<String, Double> idfEntry = idfEntries.get(j);
                 String key = idfEntry.getKey();
@@ -104,11 +109,11 @@ public class TF_IDF {
         for (int i = 0; i < vector1.length; i++) {
             dot += vector1[i] * vector2[i];
             e1 += Math.pow(vector1[i], 2);
-            e2 += Math.pow(vector1[i], 2);
+            e2 += Math.pow(vector2[i], 2);
         }
         e1 = Math.sqrt(e1);
         e2 = Math.sqrt(e2);
 
-        return dot / (e1 + e2);
+        return dot / (e1 * e2);
     }
 }
