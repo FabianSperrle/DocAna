@@ -1,9 +1,11 @@
 package similarity;
 
+import pos.brill.BrillTagger;
 import stemmer.KehlbeckSperrleStemmer;
 import stemmer.Stemmer;
 import tokenizer.Tokenizer;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -65,41 +67,66 @@ public class TF_IDF {
     }
 
     public double[][] tf_idf(List<String> texts) {
+        return this.tf_idf(texts, null);
+    }
+
+    public double[][] tf_idf(List<String> texts, List<String> posTagsToIgnore) {
         List<List<String>> stems = new LinkedList<>();
-        for (String text : texts) {
-            stems.add(Arrays.asList(this.stemmer.stem(this.tokenizer.tokenize(text))));
-        }
-        final List<Map<String, Double>> tf = tf(stems);
+        try {
+            BrillTagger bt = null;
+            if (posTagsToIgnore != null) {
+                bt = new BrillTagger("data/brill/lex.txt", "data/brill/endlex.txt", "data/brill/rules.txt");
+            }
+            for (String text : texts) {
+                final String[] tokens = this.tokenizer.tokenize(text);
+                String[] stem = this.stemmer.stem(tokens);
+                if (posTagsToIgnore != null) {
+                    String[] tags = bt.tag(tokens);
 
-        double[][] tf_idf = new double[texts.size()][idf.size()];
-        final LinkedList<Map.Entry<String, Double>> idfEntries = new LinkedList<>(idf.entrySet());
-        for (int i = 0; i < tf.size(); i++) {
-            Map<String, Double> tfMap = tf.get(i);
-            for (int j = 0; j < idfEntries.size(); j++) {
-                Map.Entry<String, Double> idfEntry = idfEntries.get(j);
-                String key = idfEntry.getKey();
-                if (tfMap.containsKey(key)) {
-                    tf_idf[i][j] = tfMap.get(key) * idfEntry.getValue();
-                } else {
-                    tf_idf[i][j] = 0;
+                    for (int i = 0; i < tags.length; i++) {
+                        if (posTagsToIgnore.contains(tags[i])) {
+                            stem[i] = null;
+                        }
+                    }
+                    stem = Arrays.asList(stem).stream().filter(r -> r != null).collect(Collectors.toList()).toArray(new String[0]);
+                }
+                stems.add(Arrays.asList(stem));
+
+            }
+            final List<Map<String, Double>> tf = tf(stems);
+
+            double[][] tf_idf = new double[texts.size()][idf.size()];
+            final LinkedList<Map.Entry<String, Double>> idfEntries = new LinkedList<>(idf.entrySet());
+            for (int i = 0; i < tf.size(); i++) {
+                Map<String, Double> tfMap = tf.get(i);
+                for (int j = 0; j < idfEntries.size(); j++) {
+                    Map.Entry<String, Double> idfEntry = idfEntries.get(j);
+                    String key = idfEntry.getKey();
+                    if (tfMap.containsKey(key)) {
+                        tf_idf[i][j] = tfMap.get(key) * idfEntry.getValue();
+                    } else {
+                        tf_idf[i][j] = 0;
+                    }
                 }
             }
-        }
 
-        double[][] similarityMatrix = new double[texts.size()][texts.size()];
-        for (int i = 0; i < texts.size(); i++) {
-            for (int j = 0; j <= i; j++) {
-                if (i == j) {
-                    similarityMatrix[i][j] = 1;
-                    similarityMatrix[j][i] = 1;
-                    continue;
+            double[][] similarityMatrix = new double[texts.size()][texts.size()];
+            for (int i = 0; i < texts.size(); i++) {
+                for (int j = 0; j <= i; j++) {
+                    if (i == j) {
+                        similarityMatrix[i][j] = 1;
+                        similarityMatrix[j][i] = 1;
+                        continue;
+                    }
+                    double sim = cosineSimilarity(tf_idf[i], tf_idf[j]);
+                    similarityMatrix[i][j] = sim;
+                    similarityMatrix[j][i] = sim;
                 }
-                double sim = cosineSimilarity(tf_idf[i], tf_idf[j]);
-                similarityMatrix[i][j] = sim;
-                similarityMatrix[j][i] = sim;
             }
+            return similarityMatrix;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return similarityMatrix;
     }
 
     private double cosineSimilarity(double[] vector1, double[] vector2) {
