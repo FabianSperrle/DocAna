@@ -2,56 +2,18 @@ package tokenizer;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import pos.brill.BrillTagger;
-import pos.hmm.ViterbiTagger;
-import stemmer.KehlbeckSperrleStemmer;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by fabian on 10.06.2016.
- */
 public class Tokenizer {
     Logger logger = LogManager.getLogger(Tokenizer.class);
-
-    public static void main(String[] args) throws IOException {
-        Tokenizer tok = new Tokenizer();
-        String sentence = "I spent my entire life from the age of six hearing great things about this movie. Things like 'Dont watch this movie alone' and 'This is one of the best horror films ever made,'so as you can imagine I took the first chance I could to buy it when I saw a colour version for \\'a34 at a market stall. I just couldn't wait to go home and put it into my VCR. As soon as the film started it hit me that I didnt have a clue what anyone was saying. By the end of the film I was ready to go to sleep. The zombies were just random people with a bit of face paint on and weren't scary at all, but then again what were they to for special effects back then. I just thaught never mind and put it away to the back of my video collection. A couple of years later while being really bored in the school holidays I decided to play it again. This time it was later on at night, so I drew the curtains and turned all of the lights off (its the only way to watch this film really). This time around I found it a little less boring. I refrained myself from falling asleep listening to the ramblings and bad acting and found that this time around I enjoyed it a lot more and in the dark the atmosphere seemed to grow on me. I started to undestand then why it was considered to be a 'great' horror movie. These days I would not call it that though seeing as I am a victim of modern standards addicted to million dollar special effects and computer generated images but for any collector of classic horror its a must. My advice would be to pick up a more recent copy like the 30th anniversary addition as hopefully the sound and picture have been tweaked slightly so to erase that feeling of 'what the hell is going on'. If any horror film (or any film) fans want to E-Mail me and talk im at ...\\";
-        String[] tokens = tok.tokenize(sentence);
-        System.out.println("Arrays.toString(tokens) = " + Arrays.toString(tokens));
-
-        KehlbeckSperrleStemmer stemmer = new KehlbeckSperrleStemmer();
-        String[] stems = stemmer.stem(tokens);
-        System.out.println("Arrays.toString(stems) = " + Arrays.toString(stems));
-
-        SentenceSplitter splitter = new SentenceSplitter();
-        String[] sentences = splitter.split(sentence);
-        for (String s : sentences) {
-            System.out.println("s = " + s);
-        }
-
-        BrillTagger bt = new BrillTagger("data/brill/lex.txt", "data/brill/endlex.txt", "data/brill/rules.txt");
-        for (String s : sentences) {
-            String[] tags = bt.tag(s);
-            System.out.println("Arrays.toString(tags) = " + Arrays.toString(tags));
-        }
-
-        ViterbiTagger vt = new ViterbiTagger("data/brown");
-        for (String s : sentences) {
-            String[] tags = vt.getTagList(s);
-            System.out.println("Arrays.toString(tags) = " + Arrays.toString(tags));
-        }
-    }
 
     public String[] tokenize(String text) {
         // https://regex101.com/r/dM0yY9/4
         text = text.replaceAll("<.*?>", "");
-        System.out.println("text = " + text);
         Pattern stuff = Pattern.compile("(?:(?<=[\"])(?:\\w+\\s){1,3}\\w+(?=[\"])|'\\d+|[a-zA-Z']+|(?<=[a-zA-Z])-(?=[a-zA-Z])|(?<=[a-zA-Z])&(?=[a-zA-Z]))+|(?:[-.\\p{Sc}]?\\d+(?:\\.\\d+)?)[%\\p{Sc}]?|[.,!?;():\"]+|--");
         Matcher matcher = stuff.matcher(text);
         List<String> tokens = new ArrayList<String>();
