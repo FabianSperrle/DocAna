@@ -1,0 +1,114 @@
+package similarity;
+
+import stemmer.KehlbeckSperrleStemmer;
+import stemmer.Stemmer;
+import tokenizer.Tokenizer;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class TF_IDF {
+    private int corpusSize;
+    private final Map<String, Double> idf;
+    private Tokenizer tokenizer;
+    private Stemmer stemmer;
+
+    public TF_IDF(List<String> corpus) {
+        this.corpusSize = corpus.size();
+        this.tokenizer = new Tokenizer();
+        this.stemmer = new KehlbeckSperrleStemmer();
+
+        List<String[]> stems = new LinkedList<>();
+        corpus.forEach(t -> stems.add(stemmer.stem(tokenizer.tokenize(t))));
+
+        idf = this.idf(stems);
+    }
+
+    /**
+     * Counts the occurences of each stem in each text.
+     *
+     * @param texts The List of List of stems
+     * @return A List of HashMaps with the counts for each stem
+     */
+    private List<Map<String, Integer>> tf(List<List<String>> texts) {
+        return texts.stream()
+                .map(documentStems -> documentStems.stream()
+                        .collect(Collectors.toMap(stem -> stem, count -> 1, (c1, c2) -> c1 + 1)))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Calculates the IDF for the current corpus
+     *
+     * @param stems A list of stems for the corpus
+     * @return The number of documents each stem appears in
+     */
+    private Map<String, Double> idf(List<String[]> stems) {
+        Map<String, Double> termCount = stems.stream()
+                // Get distinct list of stems per document
+                .flatMap(t -> Arrays.asList(t).stream().distinct())
+                // Add to the result map. Resolve key conflicts (i.e. the same stem for the second time) by
+                // incrementing the counter.
+                .collect(Collectors.toMap(stem -> stem, count -> 1.0, (count1, count2) -> count1 + 1));
+        // Normalise all values
+        termCount.entrySet().stream().forEach(entry -> termCount.put(entry.getKey(), Math.log(this.corpusSize / entry.getValue()) + 1));
+
+        return termCount;
+    }
+
+    public double[][] tf_idf(List<String> texts) {
+        List<List<String>> stems = new LinkedList<>();
+        for (String text : texts) {
+            stems.add(Arrays.asList(this.stemmer.stem(this.tokenizer.tokenize(text))));
+        }
+        final List<Map<String, Integer>> tf = tf(stems);
+
+        double[][] tf_idf = new double[texts.size()][idf.size()];
+        final LinkedList<Map.Entry<String, Double>> idfEntries = new LinkedList<>(idf.entrySet());
+        for (int i = 0; i < tf.size(); i++) {
+            Map<String, Integer> tfMap = tf.get(i);
+            for (int j = 0; j < idfEntries.size(); j++) {
+                Map.Entry<String, Double> idfEntry = idfEntries.get(j);
+                String key = idfEntry.getKey();
+                if (tfMap.containsKey(key)) {
+                    tf_idf[i][j] = tfMap.get(key) * idfEntry.getValue();
+                } else {
+                    tf_idf[i][j] = 0;
+                }
+            }
+        }
+
+        double[][] similarityMatrix = new double[texts.size()][texts.size()];
+        for (int i = 0; i < texts.size(); i++) {
+            for (int j = 0; j <= i; j++) {
+                if (i == j) {
+                    similarityMatrix[i][j] = 1;
+                    similarityMatrix[j][i] = 1;
+                    continue;
+                }
+                double sim = cosineSimilarity(tf_idf[i], tf_idf[j]);
+                similarityMatrix[i][j] = sim;
+                similarityMatrix[j][i] = sim;
+            }
+        }
+        return similarityMatrix;
+    }
+
+    private double cosineSimilarity(double[] vector1, double[] vector2) {
+        double dot = 0;
+        double e1 = 0;
+        double e2 = 0;
+        for (int i = 0; i < vector1.length; i++) {
+            dot += vector1[i] * vector2[i];
+            e1 += Math.pow(vector1[i], 2);
+            e2 += Math.pow(vector1[i], 2);
+        }
+        e1 = Math.sqrt(e1);
+        e2 = Math.sqrt(e2);
+
+        return dot / (e1 + e2);
+    }
+}
