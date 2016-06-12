@@ -68,6 +68,9 @@ public interface Stemmer {
 	}
 
 	static boolean endsWithDoubleConsonant(final String token) {
+		if (token.length() == 1)
+			return false;
+
 		int l = token.length() - 1;
 		if (token.charAt(l) == token.charAt(l - 1)) {
 			switch (token.charAt(l)) {

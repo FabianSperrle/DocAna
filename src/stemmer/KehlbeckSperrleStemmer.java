@@ -61,10 +61,12 @@ public class KehlbeckSperrleStemmer implements Stemmer {
             }
         }
 
-        remainder = token.substring(0, token.length() - 2);
-        if (token.endsWith("ed") && Stemmer.containsVowel(remainder)) {
-            token = remainder;
-            appliedSecondOrThirdRule = true;
+        if (token.length() > 2) {
+            remainder = token.substring(0, token.length() - 2);
+            if (token.endsWith("ed") && Stemmer.containsVowel(remainder)) {
+                token = remainder;
+                appliedSecondOrThirdRule = true;
+            }
         }
 
         if (appliedSecondOrThirdRule) {
@@ -85,143 +87,147 @@ public class KehlbeckSperrleStemmer implements Stemmer {
 
         applied = false;
         // Step 2
-        char penultimate = token.charAt(token.length() - 2);
-        switch (penultimate) {
-            case 'a':
-                if (token.length() > 7) {
-                    remainder = token.substring(0, token.length() - 7);
-                    if (token.endsWith("ational") && Stemmer.getMeasure(remainder) > 0) {
-                        token = remainder + "ate";
-                        applied = true;
+        if (token.length() > 2) {
+            char penultimate = token.charAt(token.length() - 2);
+            switch (penultimate) {
+                case 'a':
+                    if (token.length() > 7) {
+                        remainder = token.substring(0, token.length() - 7);
+                        if (token.endsWith("ational") && Stemmer.getMeasure(remainder) > 0) {
+                            token = remainder + "ate";
+                            applied = true;
+                        }
                     }
-                }
-                if (token.length() > 6 && !applied) {
-                    remainder = token.substring(0, token.length() - 6);
-                    if (token.endsWith("tional") && Stemmer.getMeasure(remainder) > 0) {
-                        token = remainder + "tion";
+                    if (token.length() > 6 && !applied) {
+                        remainder = token.substring(0, token.length() - 6);
+                        if (token.endsWith("tional") && Stemmer.getMeasure(remainder) > 0) {
+                            token = remainder + "tion";
+                        }
                     }
-                }
-                break;
-            case 'c':
-                if (token.length() > 4) {
-                    remainder = token.substring(0, token.length() - 4);
-                    if (token.endsWith("enci") && Stemmer.getMeasure(remainder) > 0) {
-                        token = remainder + "ence";
-                    } else if (token.endsWith("anci") && Stemmer.getMeasure(remainder) > 0) {
-                        token = remainder + "ance";
-                    }
-                }
-                break;
-            case 'e':
-                if (token.length() > 4) {
-                    remainder = token.substring(0, token.length() - 4);
-                    if (token.endsWith("izer") && Stemmer.getMeasure(remainder) > 0) {
-                        token = remainder + "ize";
-                    }
-                }
-                break;
-            case 'g':
-                if (token.length() > 4) {
-                    remainder = token.substring(0, token.length() - 4);
-                    if (token.endsWith("logi") && Stemmer.getMeasure(remainder) > 0) {
-                        token = remainder + "log";
-                    }
-                }
-                break;
-            case 'l':
-                remainder = token.substring(0, token.length() - 2);
-                if (token.endsWith("li")) {
-                    char c = token.charAt(token.length() - 3);
-                    if (c == 'c' || c == 'd' || c == 'e' || c == 't' || c == 'g' || c == 'h' || c == 'm' || c == 'r' || c == 'k') {
-                        token = remainder;
-                    }
-                }
-                if (token.endsWith("bli") && Stemmer.getMeasure(remainder) > 0) {
-                    token = remainder + "ble";
-                }
-                if (token.length() > 3) {
-                    remainder = token.substring(0, token.length() - 3);
-                    if (token.endsWith("eli") && Stemmer.getMeasure(remainder) > 0) {
-                        token = remainder + "e";
-                    }
+                    break;
+                case 'c':
                     if (token.length() > 4) {
                         remainder = token.substring(0, token.length() - 4);
-                        if (token.endsWith("alli") && Stemmer.getMeasure(remainder) > 0) {
+                        if (token.endsWith("enci") && Stemmer.getMeasure(remainder) > 0) {
+                            token = remainder + "ence";
+                        } else if (token.endsWith("anci") && Stemmer.getMeasure(remainder) > 0) {
+                            token = remainder + "ance";
+                        }
+                    }
+                    break;
+                case 'e':
+                    if (token.length() > 4) {
+                        remainder = token.substring(0, token.length() - 4);
+                        if (token.endsWith("izer") && Stemmer.getMeasure(remainder) > 0) {
+                            token = remainder + "ize";
+                        }
+                    }
+                    break;
+                case 'g':
+                    if (token.length() > 4) {
+                        remainder = token.substring(0, token.length() - 4);
+                        if (token.endsWith("logi") && Stemmer.getMeasure(remainder) > 0) {
+                            token = remainder + "log";
+                        }
+                    }
+                    break;
+                case 'l':
+                    remainder = token.substring(0, token.length() - 2);
+                    if (token.endsWith("bli") && Stemmer.getMeasure(remainder) > 0) {
+                        token = remainder + "ble";
+                        break;
+                    }
+                    if (token.length() > 3) {
+                        if (token.endsWith("li")) {
+                            char c = token.charAt(token.length() - 3);
+                            if (c == 'c' || c == 'd' || c == 'e' || c == 't' || c == 'g' || c == 'h' || c == 'm' || c == 'r' || c == 'k') {
+                                token = remainder;
+                                break;
+                            }
+                        }
+                        remainder = token.substring(0, token.length() - 3);
+                        if (token.endsWith("eli") && Stemmer.getMeasure(remainder) > 0) {
+                            token = remainder + "e";
+                        }
+                        if (token.length() > 4) {
+                            remainder = token.substring(0, token.length() - 4);
+                            if (token.endsWith("alli") && Stemmer.getMeasure(remainder) > 0) {
+                                token = remainder + "al";
+                            }
+                            if (token.length() > 5) {
+                                remainder = token.substring(0, token.length() - 5);
+                                if (token.endsWith("ousli") && Stemmer.getMeasure(remainder) > 0) {
+                                    token = remainder + "ous";
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case 'o':
+                    if (token.length() > 7) {
+                        remainder = token.substring(0, token.length() - 7);
+                        if (token.endsWith("ization") && Stemmer.getMeasure(remainder) > 0) {
+                            token = remainder + "ize";
+                            applied = true;
+                        }
+                    }
+                    if (token.length() > 5 && !applied) {
+                        remainder = token.substring(0, token.length() - 5);
+                        if ((token.endsWith("ation") || token.endsWith("ator")) && Stemmer.getMeasure(remainder) > 0) {
+                            token = remainder + "ate";
+                        }
+                    }
+                    break;
+                case 's':
+                    if (token.length() > 5) {
+                        remainder = token.substring(0, token.length() - 5);
+                        if (token.endsWith("alism") && Stemmer.getMeasure(remainder) > 0) {
                             token = remainder + "al";
                         }
-                        if (token.length() > 5) {
-                            remainder = token.substring(0, token.length() - 5);
-                            if (token.endsWith("ousli") && Stemmer.getMeasure(remainder) > 0) {
+                        if (token.length() > 7) {
+                            remainder = token.substring(0, token.length() - 7);
+                            if (token.endsWith("iveness") && Stemmer.getMeasure(remainder) > 0) {
+                                token = remainder + "ive";
+                            }
+                            if (token.endsWith("fulness") && Stemmer.getMeasure(remainder) > 0) {
+                                token = remainder + "ful";
+                            }
+                            if (token.endsWith("ousness") && Stemmer.getMeasure(remainder) > 0) {
                                 token = remainder + "ous";
                             }
                         }
                     }
-                }
-                break;
-            case 'o':
-                if (token.length() > 7) {
-                    remainder = token.substring(0, token.length() - 7);
-                    if (token.endsWith("ization") && Stemmer.getMeasure(remainder) > 0) {
-                        token = remainder + "ize";
-                        applied = true;
-                    }
-                }
-                if (token.length() > 5 && !applied) {
-                    remainder = token.substring(0, token.length() - 5);
-                    if ((token.endsWith("ation") || token.endsWith("ator")) && Stemmer.getMeasure(remainder) > 0) {
-                        token = remainder + "ate";
-                    }
-                }
-                break;
-            case 's':
-                if (token.length() > 5) {
-                    remainder = token.substring(0, token.length() - 5);
-                    if (token.endsWith("alism") && Stemmer.getMeasure(remainder) > 0) {
-                        token = remainder + "al";
-                    }
-                    if (token.length() > 7) {
-                        remainder = token.substring(0, token.length() - 7);
-                        if (token.endsWith("iveness") && Stemmer.getMeasure(remainder) > 0) {
+                    break;
+                case 't':
+                    if (token.length() > 5) {
+                        remainder = token.substring(0, token.length() - 5);
+                        if (token.endsWith("aliti") && Stemmer.getMeasure(remainder) > 0) {
+                            token = remainder + "al";
+                        }
+                        if (token.endsWith("iviti") && Stemmer.getMeasure(remainder) > 0) {
                             token = remainder + "ive";
                         }
-                        if (token.endsWith("fulness") && Stemmer.getMeasure(remainder) > 0) {
-                            token = remainder + "ful";
-                        }
-                        if (token.endsWith("ousness") && Stemmer.getMeasure(remainder) > 0) {
-                            token = remainder + "ous";
-                        }
-                    }
-                }
-                break;
-            case 't':
-                if (token.length() > 5) {
-                    remainder = token.substring(0, token.length() - 5);
-                    if (token.endsWith("aliti") && Stemmer.getMeasure(remainder) > 0) {
-                        token = remainder + "al";
-                    }
-                    if (token.endsWith("iviti") && Stemmer.getMeasure(remainder) > 0) {
-                        token = remainder + "ive";
-                    }
-                    if (token.length() > 6) {
-                        remainder = token.substring(0, token.length() - 6);
-                        if (token.endsWith("biliti") && Stemmer.getMeasure(remainder) > 0) {
-                            token = remainder + "ble";
+                        if (token.length() > 6) {
+                            remainder = token.substring(0, token.length() - 6);
+                            if (token.endsWith("biliti") && Stemmer.getMeasure(remainder) > 0) {
+                                token = remainder + "ble";
+                            }
                         }
                     }
-                }
-                break;
-        }
-        if (token.length() > 7) {
-            remainder = token.substring(0, token.length() - 7);
-            if (token.endsWith("ational") && Stemmer.getMeasure(remainder) > 0) {
-                token = remainder + "ate";
-                applied = true;
+                    break;
             }
-        }
-        if (token.length() > 6 && !applied) {
-            remainder = token.substring(0, token.length() - 6);
-            if (token.endsWith("tional") && Stemmer.getMeasure(remainder) > 0) {
-                token = remainder + "tion";
+            if (token.length() > 7) {
+                remainder = token.substring(0, token.length() - 7);
+                if (token.endsWith("ational") && Stemmer.getMeasure(remainder) > 0) {
+                    token = remainder + "ate";
+                    applied = true;
+                }
+            }
+            if (token.length() > 6 && !applied) {
+                remainder = token.substring(0, token.length() - 6);
+                if (token.endsWith("tional") && Stemmer.getMeasure(remainder) > 0) {
+                    token = remainder + "tion";
+                }
             }
         }
 
@@ -257,16 +263,18 @@ public class KehlbeckSperrleStemmer implements Stemmer {
 
         applied = false;
         // Step 4
-        remainder = token.substring(0, token.length() - 2);
-        if ((token.endsWith("al") || token.endsWith("er") || token.endsWith("ic") || token.endsWith("ou")) &&
-                Stemmer.getMeasure(remainder) > 1) {
-            token = remainder;
-        }
-        if (token.length() > 5) {
-            remainder = token.substring(0, token.length() - 5);
-            if (token.endsWith("ement") && Stemmer.getMeasure(remainder) > 1) {
+        if (token.length() > 2) {
+            remainder = token.substring(0, token.length() - 2);
+            if ((token.endsWith("al") || token.endsWith("er") || token.endsWith("ic") || token.endsWith("ou")) &&
+                    Stemmer.getMeasure(remainder) > 1) {
                 token = remainder;
-                applied = true;
+            }
+            if (token.length() > 5) {
+                remainder = token.substring(0, token.length() - 5);
+                if (token.endsWith("ement") && Stemmer.getMeasure(remainder) > 1) {
+                    token = remainder;
+                    applied = true;
+                }
             }
         }
 
