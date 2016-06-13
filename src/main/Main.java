@@ -118,27 +118,23 @@ public class Main {
 		// Iterator with respective file names
 		Iterator<String> movies = mov.iterator();
 
+		int j=0;
+		BrillTagger br = new BrillTagger();
 		// Tokenize the reviews
 		for (StringBuilder stringBuilder : builders) {
 			if(stringBuilder.length() >0){
+				System.out.println(j);
 				String collectedReviews = stringBuilder.toString();
 				Tokenizer tokenizer = new Tokenizer();
 				try {
 					String[] tokens = tokenizer.tokenize(collectedReviews);
-					Stemmer stemmer = new KehlbeckSperrleStemmer();
-					String[] stems = new String[tokens.length];
+					//Stemmer stemmer = new KehlbeckSperrleStemmer();
+					//String[] stems = new String[tokens.length];
 					String[] pos = new String[tokens.length];
-					List<String> posTemp = new ArrayList<String>();
-					for (int i = 0; i < tokens.length; i++) {
-						stems[i] = stemmer.stem(tokens[i]);
-					}
-					SentenceSplitter s =  new SentenceSplitter();
-					String[] sentences = s.split(collectedReviews);
-					BrillTagger br = new BrillTagger();
-					for (String string : sentences) {
-						posTemp.addAll(Arrays.asList(br.tag(tokens)));
-					}
-					pos = posTemp.toArray(new String[posTemp.size()]);
+					//for (int i = 0; i < tokens.length; i++) {
+					//	stems[i] = stemmer.stem(tokens[i]);
+					//}
+					pos = br.tag(tokens);
 					//pos = br.tag(tokens);
 					ArrayList<String> NN =new ArrayList<String>();
 					ArrayList<String> AP =new ArrayList<String>();
@@ -146,25 +142,25 @@ public class Main {
 					
 					for (int i = 0; i < tokens.length; i++) {
 						if (pos[i] != null) {
-							if (pos[i].equals("nn")){
-								NN.add(stems[i]);
-							}else if (pos[i].equals("ap")){
-								AP.add(stems[i]);
-							}else if (pos[i].equals("vb")){
-								VB.add(stems[i]);
+							if (pos[i].startsWith("nn")){
+								NN.add(tokens[i]);
+							}else if (pos[i].startsWith("ap")){
+								AP.add(tokens[i]);
+							}else if (pos[i].startsWith("vb")){
+								VB.add(tokens[i]);
 							}
 						}
 					}
 					// Save results to file, create Word Clouds
 					String curr = movies.next();
 					Files.write(Paths.get(String.format("data/%sNN.txt", curr)), NN);
-					WordCloudCreator creator = new WordCloudCreator(String.format("data/%sNN.png", curr), "data/whale.png", String.format("data/%sNN.txt", curr));
+					WordCloudCreator creator = new WordCloudCreator(String.format("data/img/%sNN.png", curr), "data/img/whale.png", String.format("data/img/%sNN.txt", curr));
 
 					Files.write(Paths.get(String.format("data/%sAP.txt", curr)), AP);
-					WordCloudCreator creator2 = new WordCloudCreator(String.format("data/%sAP.png", curr), "data/whale.png", String.format("data/%sAP.txt", curr));
+					WordCloudCreator creator2 = new WordCloudCreator(String.format("data/img/%sAP.png", curr), "data/img/whale.png", String.format("data/img/%sAP.txt", curr));
 
 					Files.write(Paths.get(String.format("data/%sVB.txt", curr)), VB);
-					WordCloudCreator creator3 = new WordCloudCreator(String.format("data/%sVB.png", curr), "data/whale.png", String.format("data/%sVB.txt", curr));
+					WordCloudCreator creator3 = new WordCloudCreator(String.format("data/img/%sVB.png", curr), "data/img/whale.png", String.format("data/img/%sVB.txt", curr));
 
 					creator.createWordCloud();
 					creator2.createWordCloud();
@@ -172,6 +168,7 @@ public class Main {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				j+=1;
 			}
 		}
 	}
