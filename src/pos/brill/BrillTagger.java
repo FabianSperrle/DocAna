@@ -1,10 +1,11 @@
 package pos.brill;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import tokenizer.Tokenizer;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 public class BrillTagger {
@@ -45,8 +46,8 @@ public class BrillTagger {
 
 
     public String[] tag(String sentence) throws IOException {
-        Tokenizer tok = new Tokenizer(sentence);
-        String[] tokens = tok.tokenize();
+        Tokenizer tok = new Tokenizer();
+        String[] tokens = tok.tokenize(sentence);
         return this.tag(tokens);
     }
 
