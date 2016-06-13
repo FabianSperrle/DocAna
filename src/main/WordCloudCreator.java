@@ -2,6 +2,7 @@ package main;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -35,24 +36,24 @@ public class WordCloudCreator {
 		final FrequencyAnalyzer frequencyAnalyzer = new FrequencyAnalyzer();
 		frequencyAnalyzer.setWordFrequenciesToReturn(300);
 		frequencyAnalyzer.setMinWordLength(4);
-		InputStream stream = WordCloudCreator.class.getResourceAsStream(inputStreamPath);
-		System.out.println(stream != null);
-		stream = WordCloudCreator.class.getClassLoader().getResourceAsStream(inputStreamPath);
-		System.out.println(stream != null);
+		InputStream stream = new FileInputStream(inputStreamPath);
 		final List<WordFrequency> wordFrequencies = frequencyAnalyzer.load(stream);
 		final Dimension dimension = new Dimension(990, 618);
 		final WordCloud wordCloud = new WordCloud(dimension, CollisionMode.PIXEL_PERFECT);
 		wordCloud.setPadding(2);
-		wordCloud.setBackground(new PixelBoundryBackground(getInputStream(overlayPath)));
+		final InputStream imgStream = getInputStream(overlayPath);
+		wordCloud.setBackground(new PixelBoundryBackground(imgStream));
 		wordCloud.setColorPalette(new ColorPalette(new Color(0x4055F1), new Color(0x408DF1), new Color(0x40AAF1),
 				new Color(0x40C5F1), new Color(0x40D3F1), new Color(0xFFFFFF)));
 		wordCloud.setFontScalar(new LinearFontScalar(10, 40));
 		wordCloud.build(wordFrequencies);
 		wordCloud.writeToFile(outputPath);
+		stream.close();
+		imgStream.close();
 	}
 
-	private static InputStream getInputStream(final String path) {
-		return Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+	private static InputStream getInputStream(final String path) throws IOException{
+		return new FileInputStream(path);
 	}
 
 }
