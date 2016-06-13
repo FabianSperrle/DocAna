@@ -70,13 +70,13 @@ public class BrillTagger {
             }
         }
 
-        System.out.println("tags = " + Arrays.toString(tags));
+        //System.out.println("tags = " + Arrays.toString(tags));
         for (int i = 0; i < tags.length; i++) {
             for (Rule rule : rules) {
                 rule.apply(tags, tokens, i);
             }
         }
-        System.out.println("tags = " + Arrays.toString(tags));
+        //System.out.println("tags = " + Arrays.toString(tags));
         return tags;
     }
 
