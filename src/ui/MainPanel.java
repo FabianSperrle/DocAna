@@ -251,7 +251,10 @@ public class MainPanel extends JFrame{
 	        	ViterbiTagger vit;
 				try {
 					vit = new ViterbiTagger("data/brown");
-					resultVit = vit.getTagList(txtArea.getText());
+					//resultVit = vit.getTagList(txtArea.getText());
+					for (String string : resultSentences) {
+						resultVit = vit.getTagList(string);
+					}
 				} catch (IOException e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
