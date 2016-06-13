@@ -20,7 +20,7 @@ import static java.util.stream.Collectors.summingInt;
 public class SimilarityReviews {
     public static void main(String[] args) throws IOException {
 
-        String filePath = "data/reviews.rtf";
+        String filePath = "data/docAnaTextSample.rtf";
         Reader reader = new Reader(filePath);
 
         // Read the input and clean the data
@@ -40,7 +40,13 @@ public class SimilarityReviews {
                     Double[] features = new Double[6];
                     List<String> tokens = Arrays.asList(tok.tokenize(review));
                     List<String> sentences = Arrays.asList(sp.split(review));
-                    List<String> tags = Arrays.asList(bt.tag(review));
+                    List<String> tags = null;
+					try {
+						tags = Arrays.asList(bt.tag(review));
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
                     // Average word length
                     features[0] = 11 * tokens.stream()
                             .mapToInt(String::length)
@@ -74,12 +80,13 @@ public class SimilarityReviews {
             for (int j = 0; j < featuresVectors.size(); j++) {
                 Double[] rev1 = featuresVectors.get(i);
                 Double[] rev2 = featuresVectors.get(j);
-
+                //System.arraycopy(featuresVectors.get(i), 4, rev1, 0, 2);
+                //System.arraycopy(featuresVectors.get(j), 4, rev2, 0, 2);
                 double cos = TF_IDF.cosineSimilarity(rev1, rev2);
                 similarity[i][j] = cos;
             }
         }
-
+       
         double[][] groupedSimilarity = new double[5][5];
         int[][] groupCount = new int[5][5];
 
@@ -87,9 +94,8 @@ public class SimilarityReviews {
             for (int j = 0; j < similarity.length; j++) {
                 int score1 = (int) reviews.get(i).getScore() - 1;
                 int score2 = (int) reviews.get(j).getScore() - 1;
-
                 groupedSimilarity[score1][score2] += similarity[i][j];
-                System.out.println(similarity[i][j]);
+                //System.out.println(similarity[i][j]);
                 groupCount[score1][score2]++;
             }
         }
@@ -101,8 +107,19 @@ public class SimilarityReviews {
         }
 
         for (double[] doubles : groupedSimilarity) {
-            System.out.println("doubles = " + Arrays.toString(doubles));
+            System.out.println("Grouped doubles = " + Arrays.toString(doubles));
         }
+        double sum = 0;
+        int counter = 0;
+        for (int i = 0; i < similarity.length; i++) {
+            for (int j = 0; j < similarity.length; j++) {
+                	counter++; 
+                	sum +=similarity[i][j];
+            }
+        } 
+        System.out.println("Sum doubles = " + sum);
+        System.out.println("Count doubles = " + counter);
+        System.out.println("Avg doubles = " + sum/counter);
 
 
         // word length

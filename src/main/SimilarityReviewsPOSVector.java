@@ -33,10 +33,16 @@ public class SimilarityReviewsPOSVector {
                 .collect(Collectors.toList());
 
         BrillTagger bt = new BrillTagger("data/brill/lex.txt", "data/brill/endlex.txt", "data/brill/rules.txt");
-        List<int[]> tags = top20.stream()
-                .map(review -> bt.tag(review))
-                .map(SimilarityReviewsPOSVector::getPosTagHistogram)
-                .collect(Collectors.toList());
+        List<int[]> tags;
+		try {
+			tags = top20.stream()
+			        .map(review -> bt.tag(review))
+			        .map(SimilarityReviewsPOSVector::getPosTagHistogram)
+			        .collect(Collectors.toList());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         System.out.println("tags = " + tags.size());
 
         TF_IDF tf_idf = new TF_IDF(new LinkedList<>());
