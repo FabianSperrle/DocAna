@@ -6,7 +6,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class BrillTagger {
     private Map<String,String> lexicon;
@@ -45,13 +48,13 @@ public class BrillTagger {
     }
 
 
-    public String[] tag(String sentence) throws IOException {
+    public String[] tag(String sentence) {
         Tokenizer tok = new Tokenizer();
         String[] tokens = tok.tokenize(sentence);
         return this.tag(tokens);
     }
 
-    public String[] tag(String[] tokens) throws IOException {
+    public String[] tag(String[] tokens) {
         String[] tags = new String[tokens.length];
         for (int i = 0; i < tags.length; i++) {
             String token = tokens[i];
@@ -80,7 +83,7 @@ public class BrillTagger {
         return tags;
     }
 
-    public String[] tag(String[] tokens, Rule rule) throws IOException {
+    public String[] tag(String[] tokens, Rule rule) {
         String[] tags = new String[tokens.length];
         for (int i = 0; i < tags.length; i++) {
             String token = tokens[i];
