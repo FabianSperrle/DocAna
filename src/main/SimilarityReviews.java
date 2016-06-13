@@ -1,16 +1,21 @@
 package main;
 
+import pos.brill.BrillTagger;
 import reader.Reader;
 import reader.Review;
 import similarity.TF_IDF;
+import tokenizer.SentenceSplitter;
+import tokenizer.Tokenizer;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.summingInt;
 
 public class SimilarityReviews {
     public static void main(String[] args) throws IOException {
@@ -22,109 +27,101 @@ public class SimilarityReviews {
         List<Review> reviews = reader.readFile();
         reviews.remove(0);
 
-        final Map<String, String> filtered = reviews.stream()
-                .filter(r -> r.getProduct().getProductID().equals("B002LBKDYE"))
-                .collect(Collectors.toMap(r -> r.getUser().getUserID(),
-                        r -> r.getText(),
-                        (l1, l2) -> l1 + " " + l2));
+        final List<String> filtered = reviews.stream()
+                .filter(r -> SimilarityReviews.filter(r.getProduct().getProductID()))
+                .map(r -> r.getText())
+                .collect(Collectors.toList());
 
-        List<String> IDs = new LinkedList<>();
-        final List<String> top20 = filtered.entrySet().stream().peek(film -> IDs.add(film.getKey())).map(film -> film.getValue()).collect(Collectors.toList());
-        String[] filmIDs = IDs.toArray(new String[0]);
+        Tokenizer tok = new Tokenizer();
+        SentenceSplitter sp = new SentenceSplitter();
+        BrillTagger bt = new BrillTagger();
+        final List<Double[]> featuresVectors = filtered.stream()
+                .map(review -> {
+                    Double[] features = new Double[6];
+                    List<String> tokens = Arrays.asList(tok.tokenize(review));
+                    List<String> sentences = Arrays.asList(sp.split(review));
+                    List<String> tags = Arrays.asList(bt.tag(review));
+                    // Average word length
+                    features[0] = 11 * tokens.stream()
+                            .mapToInt(String::length)
+                            .average().orElse(0);
+                    // percentage of distinct words
+                    features[1] = 33 * ((double) tokens.stream().distinct().count()) / tokens.size();
+                    // Percentage of words that appear exactly once
+                    features[2] = 100 * (double) tokens.stream()
+                            .filter(t -> Collections.frequency(tokens, t) == 1)
+                            .count() / tokens.size();
+                    // Average sentence length
+                    features[3] = 0.1 * sentences.stream()
+                            .map(tok::tokenize)
+                            .mapToInt(t -> t.length)
+                            .average().orElse(0);
+                    // Phrases per sentence
+                    features[4] = 20 * ((double) sentences.stream()
+                            .flatMap(s -> Arrays.asList(tok.tokenize(s)).stream())
+                            .filter(t -> t.equals(",") || t.equals(";") || t.equals(":") || t.equals("\""))
+                            .count()) / (sentences.size() == 0 ? 1 : sentences.size());
+                    // Distinct tags
+                    features[5] = 200 * ((double) tags.stream().distinct().count()) / tags.size();
 
-        List<String> tagsToIgnore = Files.readAllLines(Paths.get("data/similarity/tagsToIgnore"));
+                    return features;
 
-        TF_IDF tf_idf = new TF_IDF(top20);
-        final double[][] tfidf = tf_idf.tf_idf(top20, tagsToIgnore);
+                })
+                .collect(Collectors.toList());
 
+        double[][] similarity = new double[featuresVectors.size()][featuresVectors.size()];
+        for (int i = 0; i < featuresVectors.size(); i++) {
+            for (int j = 0; j < featuresVectors.size(); j++) {
+                Double[] rev1 = featuresVectors.get(i);
+                Double[] rev2 = featuresVectors.get(j);
 
-        double[] mins = {Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE};
-        double[] maxs = {Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE};
-
-        String[] minIDsI = {"", "", ""};
-        String[] maxIDsI = {"", "", ""};
-        String[] minIDsJ = {"", "", ""};
-        String[] maxIDsJ = {"", "", ""};
-
-        for (int i = 0; i < tfidf.length; i++) {
-            for (int j = 0; j < i; j++) {
-                double t = tfidf[i][j];
-                if (t == 0)
-                    if (t < mins[0]) {
-                        mins[2] = mins[1];
-                        mins[1] = mins[0];
-                        mins[0] = t;
-                        minIDsI[0] = filmIDs[i];
-                        minIDsJ[0] = filmIDs[j];
-                        continue;
-                    }
-                if (t < mins[1]) {
-                    mins[2] = mins[1];
-                    mins[1] = t;
-                    minIDsI[1] = filmIDs[i];
-                    minIDsJ[1] = filmIDs[j];
-                    continue;
-                }
-                if (t < mins[2]) {
-                    mins[2] = t;
-                    minIDsI[2] = filmIDs[i];
-                    minIDsJ[2] = filmIDs[j];
-                    continue;
-                }
-                if (t > maxs[0]) {
-                    maxs[2] = maxs[1];
-                    maxs[1] = maxs[0];
-                    maxs[0] = t;
-                    maxIDsI[0] = filmIDs[i];
-                    maxIDsJ[0] = filmIDs[j];
-                    continue;
-                }
-                if (t > maxs[1]) {
-                    maxs[2] = maxs[1];
-                    maxs[1] = t;
-                    maxIDsI[1] = filmIDs[i];
-                    maxIDsJ[1] = filmIDs[j];
-                    continue;
-                }
-                if (t > maxs[2]) {
-                    maxs[2] = t;
-                    maxIDsI[2] = filmIDs[i];
-                    maxIDsJ[2] = filmIDs[j];
-                    continue;
-                }
+                double cos = TF_IDF.cosineSimilarity(rev1, rev2);
+                similarity[i][j] = cos;
             }
         }
 
-        for (int i = 0; i < 3; i++) {
-            System.out.println("Minimum " + i + 1 + ": " + minIDsI[i] + " & " + minIDsJ[i] + ": " + mins[i]);
+        double[][] groupedSimilarity = new double[5][5];
+        int[][] groupCount = new int[5][5];
+
+        for (int i = 0; i < similarity.length; i++) {
+            for (int j = 0; j < similarity.length; j++) {
+                int score1 = (int) reviews.get(i).getScore() - 1;
+                int score2 = (int) reviews.get(j).getScore() - 1;
+
+                groupedSimilarity[score1][score2] += similarity[i][j];
+                System.out.println(similarity[i][j]);
+                groupCount[score1][score2]++;
+            }
         }
-        for (int i = 0; i < 3; i++) {
-            System.out.println("Maximum " + i + 1 + ": " + maxIDsI[i] + " & " + maxIDsJ[i] + ": " + maxs[i]);
+
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                groupedSimilarity[i][j] /= groupCount[i][j];
+            }
         }
+
+        for (double[] doubles : groupedSimilarity) {
+            System.out.println("doubles = " + Arrays.toString(doubles));
+        }
+
+
+        // word length
+        // distinct words / word count
+        // hapax legomana
+        // Sentence length
+        // sentence complexity (, before .)
+
+        // no of pos tags / word count
+
+        // weights = [11, 33, 50, 0.4, 4]
+
+
+
     }
 
     private static boolean filter(String id) {
         switch (id) {
-            case "B002LBKDYE":
-            case "B004WO6BPS":
-            case "B009NQKPUW":
-            case "B000VBJEFK":
-            case "7883704540":
-            case "B0028OA3EY":
-            case "B0028OA3EO":
-            case "B008PZZND6":
-            case "B006TTC57C":
-            case "B002VL2PTU":
-            case "B001NFNFMQ":
-            case "B000067JG4":
-            case "B000067JG3":
-            case "B000MMMTAK":
-            case "B003DBEX6K":
-            case "B001TAFCBC":
-            case "B0039UTDFG":
             case "B000KKQNRO":
-            case "B0002Y69NQ":
-            case "B005CA4SJW":
                 return true;
             default:
                 return false;

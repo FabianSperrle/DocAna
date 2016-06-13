@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class SentenceSplitter {
 
-	public String[] split(String s) throws IOException {
+	public String[] split(String s) {
 		Pattern stuff = Pattern.compile("\\S(?:.|\\n)*?(?:\\.|\\?|!|:)(?=(?:\\s+[A-Z])|\\Z)");
 		Matcher matcher = stuff.matcher(s);
 		List<String> sentences = new ArrayList<>();

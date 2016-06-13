@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static java.lang.Double.NaN;
+
 public class TF_IDF {
     private int corpusSize;
     private final Map<String, Double> idf;
@@ -95,7 +97,7 @@ public class TF_IDF {
             }
             final List<Map<String, Double>> tf = tf(stems);
 
-            double[][] tf_idf = new double[texts.size()][idf.size()];
+            Double[][] tf_idf = new Double[texts.size()][idf.size()];
             final LinkedList<Map.Entry<String, Double>> idfEntries = new LinkedList<>(idf.entrySet());
             for (int i = 0; i < tf.size(); i++) {
                 Map<String, Double> tfMap = tf.get(i);
@@ -105,31 +107,36 @@ public class TF_IDF {
                     if (tfMap.containsKey(key)) {
                         tf_idf[i][j] = tfMap.get(key) * idfEntry.getValue();
                     } else {
-                        tf_idf[i][j] = 0;
+                        tf_idf[i][j] = 0.0000000000000000000000001;
                     }
                 }
             }
 
-            double[][] similarityMatrix = new double[texts.size()][texts.size()];
-            for (int i = 0; i < texts.size(); i++) {
-                for (int j = 0; j <= i; j++) {
-                    if (i == j) {
-                        similarityMatrix[i][j] = 1;
-                        similarityMatrix[j][i] = 1;
-                        continue;
-                    }
-                    double sim = cosineSimilarity(tf_idf[i], tf_idf[j]);
-                    similarityMatrix[i][j] = sim;
-                    similarityMatrix[j][i] = sim;
-                }
-            }
+            double[][] similarityMatrix = calculateSimilarityMatrix(tf_idf, texts.size());
             return similarityMatrix;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private double cosineSimilarity(double[] vector1, double[] vector2) {
+    public double[][] calculateSimilarityMatrix(Double[][] tf_idf, int size) {
+        double[][] similarityMatrix = new double[size][size];
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j <= i; j++) {
+                if (i == j) {
+                    similarityMatrix[i][j] = 1;
+                    similarityMatrix[j][i] = 1;
+                    continue;
+                }
+                double sim = cosineSimilarity(tf_idf[i], tf_idf[j]);
+                similarityMatrix[i][j] = sim;
+                similarityMatrix[j][i] = sim;
+            }
+        }
+        return similarityMatrix;
+    }
+
+    public static double cosineSimilarity(Double[] vector1, Double[] vector2) {
         double dot = 0;
         double e1 = 0;
         double e2 = 0;
@@ -141,6 +148,11 @@ public class TF_IDF {
         e1 = Math.sqrt(e1);
         e2 = Math.sqrt(e2);
 
-        return dot / (e1 * e2);
+        dot = dot / (e1 * e2);
+        if (Double.isNaN(dot)) {
+            throw new RuntimeException(Arrays.toString(vector1) + " " + Arrays.toString(vector2));
+        }
+
+        return dot;
     }
 }

@@ -164,12 +164,7 @@ public class MainPanel extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 SentenceSplitter sentence = new SentenceSplitter();
-                try {
-                    resultSentences = sentence.split(txtArea.getText());
-                    //System.out.println(Arrays.toString(resultSentences));
-                } catch (IOException e2) {
-                    e2.printStackTrace();
-                }
+                resultSentences = sentence.split(txtArea.getText());
                 sentences.setText(Arrays.toString(resultSentences));
                 panel3.repaint();
                 panel3.revalidate();

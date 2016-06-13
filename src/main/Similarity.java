@@ -62,6 +62,9 @@ public class Similarity {
         for (int i = 0; i < tfidf.length; i++) {
             for (int j = 0; j < i; j++) {
                 double t = tfidf[i][j];
+                if (t == 0 || t >= 0.9999999999999999) {
+                    continue;
+                }
                 if (t < mins[0]) {
                     mins[2] = mins[1];
                     mins[1] = mins[0];
