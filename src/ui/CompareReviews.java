@@ -132,6 +132,7 @@ public class CompareReviews extends JFrame {
 
 				
 				panelLeft.getComboBox().getSelectedItem();
+				browser.executeJavaScript("");
 			}
 		});
 
