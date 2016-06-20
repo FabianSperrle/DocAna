@@ -1,8 +1,6 @@
 package main;
 
 import pos.brill.BrillTagger;
-import reader.Reader;
-import reader.Review;
 import similarity.TF_IDF;
 
 import java.io.IOException;
@@ -14,27 +12,26 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SimilarityReviewsPOSVector {
-    private static List<String> tagSet;
-    public static void main(String[] args) throws IOException {
+    List<String> tagSet;
 
-        String filePath = "data/reviews.rtf";
-        Reader reader = new Reader(filePath);
+    public SimilarityReviewsPOSVector() {
+        try {
+            tagSet = Files.readAllLines(Paths.get("data/brill/taglist.txt"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-        tagSet = Files.readAllLines(Paths.get("data/brill/taglist.txt"));
-
-        // Read the input and clean the data
-        List<Review> reviews = reader.readFile();
-        reviews.remove(0);
-
-        final List<String> top20 = reviews.stream()
-                .filter(r -> SimilarityReviewsPOSVector.filter(r.getProduct().getProductID()))
-                .map(r -> r.getText())
-                .collect(Collectors.toList());
-
-        BrillTagger bt = new BrillTagger("data/brill/lex.txt", "data/brill/endlex.txt", "data/brill/rules.txt");
-        List<Double[]> tags = top20.stream()
-                .map(review -> bt.tag(review))
-                .map(SimilarityReviewsPOSVector::getPosTagHistogram)
+    public double[][] getPOSSimilarity(List<String> texts) {
+        BrillTagger bt = null;
+        try {
+            bt = new BrillTagger();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<Double[]> tags = texts.stream()
+                .map(bt::tag)
+                .map(this::getPosTagHistogram)
                 .filter(r -> r != null)
                 .collect(Collectors.toList());
 
@@ -49,33 +46,10 @@ public class SimilarityReviewsPOSVector {
             }
         }
 
-        double[][] groupedSimilarity = new double[5][5];
-        int[][] groupCount = new int[5][5];
-
-        for (int i = 0; i < similarity.length; i++) {
-            for (int j = 0; j < similarity.length; j++) {
-                int score1 = (int) reviews.get(i).getScore() - 1;
-                int score2 = (int) reviews.get(j).getScore() - 1;
-
-                groupedSimilarity[score1][score2] += similarity[i][j];
-                System.out.println(similarity[i][j]);
-                groupCount[score1][score2]++;
-            }
-        }
-
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                groupedSimilarity[i][j] /= groupCount[i][j];
-            }
-        }
-
-        for (double[] doubles : groupedSimilarity) {
-            System.out.println("doubles = " + Arrays.toString(doubles));
-        }
-
+        return similarity;
     }
 
-    public static Double[] getPosTagHistogram(String[] tags) {
+    public Double[] getPosTagHistogram(String[] tags) {
         final Map<String, Integer> counts = Arrays.asList(tags).stream()
                 .collect(Collectors.toMap(tag -> tag,
                         count -> 1,
@@ -89,15 +63,5 @@ public class SimilarityReviewsPOSVector {
             return null;
         }
         return hist;
-    }
-    private static boolean filter(String id) {
-        switch (id) {
-            case "B000KKQNRO":
-            //case "B004WO6BPS":
-            //case "B009NQKPUW":
-                return true;
-            default:
-                return false;
-        }
     }
 }

@@ -176,7 +176,7 @@ public class ReviewToAuthor {
     }
 
 
-    private static boolean filter(String id) {
+    public static boolean filter(String id) {
         switch (id) {
             case "B000KKQNRO":
             case "B004WO6BPS":
