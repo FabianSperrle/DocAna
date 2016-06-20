@@ -1,34 +1,18 @@
 package ui;
 
+import com.teamdev.jxbrowser.chromium.Browser;
+import com.teamdev.jxbrowser.chromium.swing.BrowserView;
 import main.ReviewToAuthor;
 import main.SimilarityReviewsNouns;
 import main.SimilarityReviewsPOSVector;
 import pos.brill.BrillTagger;
-import pos.hmm.ViterbiTagger;
 import reader.Reader;
 import reader.Review;
 import similarity.TF_IDF;
-import stemmer.KehlbeckSperrleStemmer;
-import stemmer.Stemmer;
 import tokenizer.SentenceSplitter;
 import tokenizer.Tokenizer;
 
 import javax.swing.*;
-
-import com.teamdev.jxbrowser.chromium.Browser;
-import com.teamdev.jxbrowser.chromium.LoggerProvider;
-import com.teamdev.jxbrowser.chromium.events.FailLoadingEvent;
-import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
-import com.teamdev.jxbrowser.chromium.events.FrameLoadEvent;
-import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
-import com.teamdev.jxbrowser.chromium.events.LoadEvent;
-import com.teamdev.jxbrowser.chromium.events.NetError;
-import com.teamdev.jxbrowser.chromium.events.ProvisionalLoadingEvent;
-import com.teamdev.jxbrowser.chromium.events.StartLoadingEvent;
-import com.teamdev.jxbrowser.chromium.swing.BrowserView;
-
-import main.Similarity;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -177,17 +160,17 @@ public class CompareReviews extends JFrame {
                 double[][] tf_idf = new TF_IDF(filtered).tf_idf(list);
                 double[][] pos = new SimilarityReviewsPOSVector().getPOSSimilarity(list);
                 double[][] noun = new SimilarityReviewsNouns().getNounSimilarity(list);
-                String ov = String.valueOf(tf_idf[0][1]);
+                String ov = String.valueOf(tf_idf[0][1] * 5);
                 String ap = String.valueOf(author_profile_similarity[0][1]);
                 String po = String.valueOf(pos[0][1]);
-                String no = String.valueOf(noun[0][1]);
+                String no = String.valueOf(noun[0][1] * 5);
                 String str = new SimilarityReviewsPOSVector().getPOSTags(list);
                 
                 String script = " var data = [  {    className: 'germany', axes: [ ";
-                script += "{axis: \"tf_idf\", value:  " + ov + "},";
-                script += "{axis: \"author_profile_similarity\", value:  " +ap + "},";
-                script += "{axis: \"pos\", value:  " +po + "},";
-                script += "{axis: \"noun\", value:  " +no + "},";
+                script += "{axis: \"TF-IDF\", value:  " + ov + "},";
+                script += "{axis: \"Author Profile\", value:  " + ap + "},";
+                script += "{axis: \"POS Histogram\", value:  " + po + "},";
+                script += "{axis: \"Noun TF-IDF\", value:  " + no + "},";
                 script += "]}];RadarChart.draw(\".chart-container\", data);";
                 
                 browser.executeJavaScript(script);
