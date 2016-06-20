@@ -12,12 +12,27 @@ import tokenizer.Tokenizer;
 
 import javax.swing.*;
 
+import com.teamdev.jxbrowser.chromium.Browser;
+import com.teamdev.jxbrowser.chromium.LoggerProvider;
+import com.teamdev.jxbrowser.chromium.events.FailLoadingEvent;
+import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
+import com.teamdev.jxbrowser.chromium.events.FrameLoadEvent;
+import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
+import com.teamdev.jxbrowser.chromium.events.LoadEvent;
+import com.teamdev.jxbrowser.chromium.events.NetError;
+import com.teamdev.jxbrowser.chromium.events.ProvisionalLoadingEvent;
+import com.teamdev.jxbrowser.chromium.events.StartLoadingEvent;
+import com.teamdev.jxbrowser.chromium.swing.BrowserView;
+
 import main.Similarity;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,27 +58,32 @@ public class CompareReviews extends JFrame {
 	JLabel nouns;
 	JLabel style;
 	JLabel own;
+	
+	private final Browser browser = new Browser();
 
 
 	public CompareReviews(Integer[] reviewsList) {
 
+        super();
+        
 		setTitle("Compare Reviews");
 		setBackground(Color.gray);
 
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new BorderLayout());
-		getContentPane().add(topPanel);
+		
+		//getContentPane().add(topPanel);
 
 		// Create the panels
 		panelLeft = new CompareJPanel(reviewsList, reviews);
 		panelLeft.setLayout(new BoxLayout(panelLeft,
 				BoxLayout.PAGE_AXIS));
-		panelLeft.setMinimumSize(new Dimension(400, 400));
+		panelLeft.setMinimumSize(new Dimension(800, 300));
 
 		panelRight = new CompareJPanel(reviewsList, reviews);
 		panelRight.setLayout(new BoxLayout(panelRight,
 				BoxLayout.PAGE_AXIS));
-		panelRight.setMinimumSize(new Dimension(400, 400));
+		panelRight.setMinimumSize(new Dimension(800, 300));
 
 		splitPaneV = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         topPanel.add(splitPaneV, BorderLayout.CENTER);
@@ -75,6 +95,22 @@ public class CompareReviews extends JFrame {
 		splitPaneH = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panelLeft, panelRight);
 		splitPaneV.setLeftComponent(splitPaneH);
         splitPaneV.setRightComponent(panel3);
+        
+        BrowserView browserView = new BrowserView(browser);
+        browserView.setSize(new Dimension(300,200));
+
+        URL url = null;
+		try {
+			url = Paths.get("data/graph.html").toUri().toURL();
+		} catch (MalformedURLException e) {
+			System.out.println("error to get map.html!\n" + e);
+		}
+        String filesPathAndName = url.getPath();
+        
+        super.add(topPanel, BorderLayout.NORTH);
+        super.add(browserView, BorderLayout.CENTER);
+        
+		browser.loadURL("file:" + filesPathAndName);
 
 		
 	}

@@ -34,7 +34,7 @@ public class CompareJPanel extends JPanel{
 	public CompareJPanel(Integer[] reviewsList, List<Review> pReviews ) {
 		super();
 		super.setLayout(new FlowLayout());
-		super.setMinimumSize(new Dimension(1000, 500));
+		
 		reviews = pReviews;
 		// Add select box
 		comboBox = new JComboBox<Integer>();
@@ -46,6 +46,8 @@ public class CompareJPanel extends JPanel{
 		sentences.setEditable(false);
 		sentences.setSize(super.getSize());
 		JScrollPane scrollFrameTxt = new JScrollPane(sentences);
+		scrollFrameTxt.setPreferredSize(new Dimension(700, 300));
+		sentences.setCaretPosition(0);
 		super.add(scrollFrameTxt);
 		sp = new SentenceSplitter();
 		comboBox.addActionListener(new ActionListener() {
