@@ -58,10 +58,12 @@ public class CompareReviews extends JFrame {
 		panelLeft = new CompareJPanel(reviewsList, reviews);
 		panelLeft.setLayout(new BoxLayout(panelLeft,
 				BoxLayout.PAGE_AXIS));
+		panelLeft.setMinimumSize(new Dimension(400, 400));
 
 		panelRight = new CompareJPanel(reviewsList, reviews);
 		panelRight.setLayout(new BoxLayout(panelRight,
 				BoxLayout.PAGE_AXIS));
+		panelRight.setMinimumSize(new Dimension(400, 400));
 
 		splitPaneV = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         topPanel.add(splitPaneV, BorderLayout.CENTER);
@@ -79,6 +81,7 @@ public class CompareReviews extends JFrame {
 	
 	private void createPanel3(){
 		panel3 = new JPanel();
+		panel3.setLayout(new FlowLayout());
 		JButton compute = new JButton("Compute Similarity!");
 		panel3.add(compute);
 		compute.addActionListener(new ActionListener() {
@@ -102,29 +105,29 @@ public class CompareReviews extends JFrame {
 		overall = new JLabel(" ");
 		overall.setName("Overall");
 		overall.setForeground(Color.black);
-		panel3.add(overallLabel);
-		panel3.add(overall);
+		panel3.add(overallLabel,BorderLayout.NORTH);
+		panel3.add(overall,BorderLayout.CENTER);
 
 		JLabel nounsLabel = new JLabel("Noun Similarity",
 				JLabel.LEADING); //== LEFT
 		nouns = new JLabel(" ");
 		nouns.setForeground(Color.black);
-		panel3.add(nounsLabel);
-		panel3.add(nouns);
+		panel3.add(nounsLabel,BorderLayout.NORTH);
+		panel3.add(nouns,BorderLayout.CENTER);
 
 		JLabel styleLabel = new JLabel("Writing Style Similarity",
 				JLabel.LEADING); //== LEFT
 		style = new JLabel(" ");
 		style.setForeground(Color.black);
-		panel3.add(styleLabel);
-		panel3.add(style);
+		panel3.add(styleLabel,BorderLayout.NORTH);
+		panel3.add(style,BorderLayout.CENTER);
 
 		JLabel ownLabel = new JLabel("Our own similarity measure",
 				JLabel.LEADING); //== LEFT
 		own = new JLabel(" ");
 		own.setForeground(Color.black);
-		panel3.add(ownLabel);
-		panel3.add(own);
+		panel3.add(ownLabel,BorderLayout.NORTH);
+		panel3.add(own,BorderLayout.CENTER);
 
 		tok = new Tokenizer();
 		sp = new SentenceSplitter();
