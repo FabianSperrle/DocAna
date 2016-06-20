@@ -48,6 +48,34 @@ public class SimilarityReviewsPOSVector {
 
         return similarity;
     }
+    
+    public String getPOSTags(List<String> texts) {
+        BrillTagger bt = null;
+        try {
+            bt = new BrillTagger();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<Double[]> tags = texts.stream()
+                .map(bt::tag)
+                .map(this::getPosTagHistogram)
+                .filter(r -> r != null)
+                .collect(Collectors.toList());
+
+        String script = " var data = [\n{\nclassName: 'germany',\n axes: [ \n";
+        for (Double[] doubles : tags) {
+			for (int i = 0; i < doubles.length; i++) {
+				script += "{axis: \" \", value: ";
+				Double double1 = doubles[i];
+				script += double1;
+				script += "}, \n";				
+			}
+			script +="]},{className: 'argentina',axes: [";
+		}
+        script = script.substring(0, script.length()-34);
+        script +="]}]; RadarChart.draw(\".chart-container\", data);";
+        return script;
+    }
 
     public Double[] getPosTagHistogram(String[] tags) {
         final Map<String, Integer> counts = Arrays.asList(tags).stream()

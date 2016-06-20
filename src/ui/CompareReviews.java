@@ -134,17 +134,16 @@ public class CompareReviews extends JFrame {
         BrowserView browserView = new BrowserView(browser);
         browserView.setSize(new Dimension(300,200));
 
-        URL url = null;
-		try {
-			url = Paths.get("data/graph.html").toUri().toURL();
-		} catch (MalformedURLException e) {
-			System.out.println("error to get map.html!\n" + e);
-		}
-        String filesPathAndName = url.getPath();
         
         super.add(topPanel, BorderLayout.NORTH);
         super.add(browserView, BorderLayout.CENTER);
-        
+        URL url = null;
+		try {
+			url = Paths.get("data/graph.html").toUri().toURL();
+		} catch (MalformedURLException e1) {
+			System.out.println("error to get map.html!\n" + e1);
+		}
+        String filesPathAndName = url.getPath();
 		browser.loadURL("file:" + filesPathAndName);
 
 
@@ -182,11 +181,26 @@ public class CompareReviews extends JFrame {
                 String ap = String.valueOf(author_profile_similarity[0][1]);
                 String po = String.valueOf(pos[0][1]);
                 String no = String.valueOf(noun[0][1]);
+                String str = new SimilarityReviewsPOSVector().getPOSTags(list);
+                
+                String script = " var data = [  {    className: 'germany', axes: [ ";
+                script += "{axis: \"tf_idf\", value:  " + ov + "},";
+                script += "{axis: \"author_profile_similarity\", value:  " +ap + "},";
+                script += "{axis: \"pos\", value:  " +po + "},";
+                script += "{axis: \"noun\", value:  " +no + "},";
+                script += "]}];RadarChart.draw(\".chart-container\", data);";
+                
+                browser.executeJavaScript(script);
+                System.out.println(script);
+
+//                overall.setText(ov);
+//                style.setText(ap);
+//                own.setText(po);
+//                nouns.setText(no);
                 overall.setText(ov);
                 style.setText(ap);
                 own.setText(po);
                 nouns.setText(no);
-
 
                 panelLeft.getComboBox().getSelectedItem();
             }
