@@ -39,7 +39,7 @@ public class WordCloudCreator {
 		frequencyAnalyzer.setMinWordLength(4);
 		InputStream stream = new FileInputStream(inputStreamPath);
 		final List<WordFrequency> wordFrequencies = frequencyAnalyzer.load(stream);
-		final Dimension dimension = new Dimension(500, 500);
+		final Dimension dimension = new Dimension(1000, 1000);
 		final WordCloud wordCloud = new WordCloud(dimension, CollisionMode.PIXEL_PERFECT);
 		wordCloud.setPadding(2);
 		final InputStream imgStream = getInputStream(overlayPath);
