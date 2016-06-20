@@ -8,10 +8,7 @@ import tokenizer.Tokenizer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SimilarityReviewsNouns {
@@ -41,11 +38,13 @@ public class SimilarityReviewsNouns {
                         if (tags[i] == null) {
                             continue;
                         }
-                        if (tags[i].contains("np")) {
+                        if (tags[i].contains("nn")) {
                             sb.append(st.stem(tokens[i]));
+                            sb.append(" ");
                         }
                     }
 
+                    System.out.println("sb.toString() = " + sb.toString());
                     return sb.toString();
                 })
                 .collect(Collectors.toList());
