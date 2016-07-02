@@ -20,8 +20,8 @@ public class SentimentClassifier {
         int positiveCount = 0;
         int negativeCount = 0;
         for (String stem : stems) {
-            if (SentimentWords.positive.contains(stem)) positiveCount++;
-            if (SentimentWords.negative.contains(stem)) negativeCount++;
+            if (SentimentWords.positive().contains(stem)) positiveCount++;
+            if (SentimentWords.negative().contains(stem)) negativeCount++;
         }
 
         if (positiveCount > negativeCount) return Sentiment.GOOD;

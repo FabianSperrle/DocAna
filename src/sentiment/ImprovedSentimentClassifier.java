@@ -24,6 +24,7 @@ public class ImprovedSentimentClassifier {
         int negativeCount = 0;
 
         boolean notFlag = false;
+        double weight = 1.0;
         for (int i = 0; i < stems.length; i++) {
             String stem = stems[i];
             String tag = tags[i];
@@ -34,13 +35,16 @@ public class ImprovedSentimentClassifier {
             if (tag.contains("*")) notFlag = true;
             else if (notFlag && stopNotInfluence(tag)) notFlag = false;
 
-            if (SentimentWords.positive.contains(stem)) {
-                if (notFlag) negativeCount++;
-                else positiveCount++;
+            if (stopModifierInfluence(tag)) weight = 1;
+            else weight *= SentimentWords.getModifiers(tag);
+
+            if (SentimentWords.positive().contains(stem)) {
+                if (notFlag) negativeCount += weight;
+                else positiveCount += weight;
             }
-            if (SentimentWords.negative.contains(stem)) {
-                if (notFlag) positiveCount++;
-                else negativeCount++;
+            if (SentimentWords.negative().contains(stem)) {
+                if (notFlag) positiveCount += weight;
+                else negativeCount += weight;
             }
         }
 
@@ -57,5 +61,15 @@ public class ImprovedSentimentClassifier {
      */
     private static boolean stopNotInfluence(String tag) {
         return tag.equals(".") || tag.equals(",") || tag.equals(":") || tag.equals(";");
+    }
+
+    /**
+     * Checks whether the current tag stops the influence of a possible preceding modifier
+     *
+     * @param tag The current tag
+     * @return whether the tag stops the influence
+     */
+    private static boolean stopModifierInfluence(String tag) {
+        return tag.equals(".") || tag.equals(":") || tag.equals(";");
     }
 }
