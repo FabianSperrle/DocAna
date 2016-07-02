@@ -20,9 +20,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -160,10 +158,10 @@ public class CompareReviews extends JFrame {
                 double[][] tf_idf = new TF_IDF(filtered).tf_idf(list);
                 double[][] pos = new SimilarityReviewsPOSVector().getPOSSimilarity(list);
                 double[][] noun = new SimilarityReviewsNouns().getNounSimilarity(list);
-                String ov = String.valueOf(tf_idf[0][1] * 5);
-                String ap = String.valueOf(author_profile_similarity[0][1]);
-                String po = String.valueOf(pos[0][1]);
-                String no = String.valueOf(noun[0][1] * 5);
+                String ov = String.format(Locale.ENGLISH, "%.4f", tf_idf[0][1] * 5);
+                String ap = String.format(Locale.ENGLISH, "%.4f", author_profile_similarity[0][1]);
+                String po = String.format(Locale.ENGLISH, "%.4f", pos[0][1]);
+                String no = String.format(Locale.ENGLISH, "%.4f", noun[0][1] * 5);
                 String str = new SimilarityReviewsPOSVector().getPOSTags(list);
                 
                 String script = " var data = [  {    className: 'germany', axes: [ ";
@@ -212,7 +210,7 @@ public class CompareReviews extends JFrame {
         panel3.add(styleLabel, BorderLayout.NORTH);
         panel3.add(style, BorderLayout.CENTER);
 
-        JLabel ownLabel = new JLabel("Our own similarity measure",
+        JLabel ownLabel = new JLabel("POS Histogram",
                 JLabel.LEADING); //== LEFT
         own = new JLabel(" ");
         own.setForeground(Color.black);
