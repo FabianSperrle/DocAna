@@ -33,6 +33,8 @@ public class AverageStarRatingExtractor {
 
         // Calculate rating variance for each movie
         SortedMap<Double, List<String>> ratingVarianceMap = new TreeMap<>();
+        Map<String, Double> avgMap = new HashMap<>();
+
         collect.entrySet().forEach(
                 entry -> {
                     String key = entry.getKey();
@@ -45,6 +47,9 @@ public class AverageStarRatingExtractor {
                     SummaryStatistics stats = new SummaryStatistics();
                     ratings.forEach(stats::addValue);
                     double variance = stats.getVariance();
+                    double avg = stats.getMean();
+
+                    avgMap.put(key, avg);
 
                     // Update list of movies with that variance
                     List<String> currValueForVariance = ratingVarianceMap.getOrDefault(variance, new LinkedList<>());
@@ -70,7 +75,16 @@ public class AverageStarRatingExtractor {
                 }
         );
 
+        List<String> avgList = new LinkedList<>();
+        for (String movieID : topTenMovieIDs) {
+            final Double avg = avgMap.get(movieID);
+            avgList.add(movieID + " " + avg);
+            System.out.println("movieID = " + movieID);
+            System.out.println("avg = " + avg);
+        }
+
         // Save movies
         Files.write(Paths.get("data/top10.txt"), topTenMovieIDs);
+        Files.write(Paths.get("data/top10avg.txt"), avgList);
     }
 }
