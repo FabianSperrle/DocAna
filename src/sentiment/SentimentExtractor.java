@@ -41,6 +41,7 @@ public class SentimentExtractor {
 
             for (Review review : entry.getValue()) {
                 String text = review.getText();
+                //Sentiment sentiment = SentimentClassifier.classify(text);
                 Sentiment sentiment = ImprovedSentimentClassifier.classify(text);
                 int rating = (int) review.getScore() - 1;
 

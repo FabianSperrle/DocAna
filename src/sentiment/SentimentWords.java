@@ -1,5 +1,9 @@
 package sentiment;
 
+import stemmer.KehlbeckSperrleStemmer;
+import stemmer.Stemmer;
+import tokenizer.Tokenizer;
+
 import java.util.*;
 
 public class SentimentWords {
@@ -17,8 +21,23 @@ public class SentimentWords {
             "brilliant",
             "recommend",
             "love",
-            "best"
-
+            "best",
+            "dazzl",
+            "phenomen",
+            "fantast",
+            "grip",
+            "mesmer",
+            "rivet",
+            "spectacular",
+            "cool",
+            "awesom",
+            "thrill",
+            "badass",
+            "move",
+            "excit",
+            "love",
+            "superb",
+            "fantastic"
     ));
     private static Set<String> negative = new HashSet<>(Arrays.asList(
             "absurd",
@@ -37,7 +56,12 @@ public class SentimentWords {
             "unwatchabl",
             "bor", // boring
             "stupid",
-            "wast" // waste
+            "wast", // waste
+            "bad",
+            "horribl",
+            "garbag",
+            "nonsens",
+            "claim"
     ));
 
     private static Map<String, Double> modifiers;
@@ -91,5 +115,15 @@ public class SentimentWords {
             return modifiers.get(tag);
         }
         return 1.0;
+    }
+
+    public static void main(String[] args) {
+        Stemmer stemmer = new KehlbeckSperrleStemmer();
+        Tokenizer tok = new Tokenizer();
+
+        String sentence = "dazzling brilliant phenomenal excellent fantastic gripping\n" +
+                "mesmerizing riveting spectacular cool awesome thrilling badass\n" +
+                "excellent moving exciting love wonderful best great superb beautiful";
+        System.out.println("stemmer.stem(tok.tokenize()) = " + Arrays.toString(stemmer.stem(tok.tokenize(sentence))));
     }
 }
